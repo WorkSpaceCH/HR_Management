@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NotificationDemoComponent } from './notification-demo/notification-demo.component';
 import { WorkflowDemoComponent } from './workflow-demo/workflow-demo.component';
-import { AuthGuard } from '../../core/guards/auth.guard';
+import { SecurityDemoComponent } from './security-demo/security-demo.component';
+import { AuthGuard } from '../../core/security/guards/auth.guard';
 import { Role } from '../../core/models/user.model';
 
 const routes: Routes = [
@@ -20,6 +21,12 @@ const routes: Routes = [
   {
     path: 'workflow',
     component: WorkflowDemoComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [Role.ADMIN] }
+  },
+  {
+    path: 'security',
+    component: SecurityDemoComponent,
     canActivate: [AuthGuard],
     data: { roles: [Role.ADMIN] }
   }

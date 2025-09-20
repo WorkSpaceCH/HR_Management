@@ -8,6 +8,12 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { SystemSettingsComponent } from './system-settings/system-settings.component';
 import { AccessControlComponent } from './access-control/access-control.component';
 
+// Import feature-specific security module
+import { AdminSecurityModule } from './security/admin-security.module';
+
+// Import network module
+import { AdminNetworkModule } from './network/admin-network.module';
+
 @NgModule({
   declarations: [
     AdminDashboardComponent,
@@ -19,7 +25,13 @@ import { AccessControlComponent } from './access-control/access-control.componen
     CommonModule,
     ReactiveFormsModule,
     AdminRoutingModule,
-    SharedModule
-  ]
+    SharedModule,
+    // Import and configure feature-specific security and network modules
+    AdminSecurityModule.forRoot(),
+    AdminNetworkModule.forRoot()
+  ],
+  // Ensure services from this module can't be injected elsewhere
+  providers: []
+  // Note: AdminModule is lazy-loaded, so its services will not be available in other modules
 })
 export class AdminModule { }

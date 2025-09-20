@@ -1,0 +1,207 @@
+<div class="security-demo-container">
+  <app-page-header title="Security & Networking Demo" subtitle="Explore the networking and security features of the application"></app-page-header>
+
+  <div class="demo-content">
+    <!-- Security Context Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Current Security Context</h3>
+      </div>
+      <div class="panel-content">
+        <div class="security-context">
+          <div class="context-item">
+            <h4>User</h4>
+            <div *ngIf="currentUser" class="context-data">
+              <p><strong>Name:</strong> {{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+              <p><strong>Role:</strong> <span class="badge role-{{ currentUser.role | lowercase }}">{{ currentUser.role }}</span></p>
+              <p><strong>ID:</strong> {{ currentUser.id }}</p>
+            </div>
+            <div *ngIf="!currentUser" class="context-data">
+              <p class="not-authenticated">Not authenticated</p>
+            </div>
+          </div>
+
+          <div class="context-item">
+            <h4>Permissions</h4>
+            <div *ngIf="currentUser" class="context-data">
+              <div *ngIf="permissions.length > 0" class="permissions-list">
+                <span *ngFor="let permission of permissions" class="permission-badge">{{ permission }}</span>
+              </div>
+              <p *ngIf="permissions.length === 0">No permissions assigned</p>
+            </div>
+            <div *ngIf="!currentUser" class="context-data">
+              <p class="not-authenticated">Not authenticated</p>
+            </div>
+          </div>
+
+          <div class="context-item">
+            <h4>CSRF Token</h4>
+            <div class="context-data">
+              <p class="csrf-token">{{ csrfToken }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Zone Demo -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Security Zones</h3>
+      </div>
+      <div class="panel-content">
+        <div class="zones-list">
+          <div *ngFor="let endpoint of endpoints" class="zone-item" [ngClass]="getZoneClass(endpoint.zone)">
+            <div class="zone-header">
+              <h4>{{ endpoint.zone }}</h4>
+            </div>
+            <div class="zone-content">
+              <p>{{ endpoint.description }}</p>
+              <p class="endpoint-url">{{ endpoint.url }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Builder -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Request Builder</h3>
+      </div>
+      <div class="panel-content">
+        <div class="request-builder">
+          <div class="form-group">
+            <label for="endpoint">Endpoint</label>
+            <select id="endpoint" [(ngModel)]="selectedEndpoint" (change)="onEndpointChange()">
+              <option *ngFor="let endpoint of endpoints" [value]="endpoint.url">
+                {{ endpoint.description }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="method">Method</label>
+            <select id="method" [(ngModel)]="requestMethod">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+
+          <div *ngIf="requestMethod !== 'GET'" class="form-group">
+            <label for="body">Request Body</label>
+            <textarea id="body" [(ngModel)]="requestBody" rows="5" placeholder='{"key": "value"}'></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Headers</label>
+            <div class="headers-list">
+              <div *ngFor="let header of requestHeaders | keyvalue" class="header-item">
+                <span class="header-name">{{ header.key }}:</span>
+                <span class="header-value">{{ header.value }}</span>
+                <button type="button" class="remove-header" (click)="removeHeader(header.key)">×</button>
+              </div>
+            </div>
+
+            <div class="add-header">
+              <input type="text" placeholder="Header Name" #headerName>
+              <input type="text" placeholder="Header Value" #headerValue>
+              <button type="button" (click)="addHeader(headerName.value, headerValue.value); headerName.value = ''; headerValue.value = ''">Add Header</button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="validate-btn" (click)="validateSecurity()">Validate Security</button>
+            <button type="button" class="send-btn" (click)="sendRequest()">Send Request</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Validation Results -->
+    <div *ngIf="securityDetails" class="panel">
+      <div class="panel-header">
+        <h3>Security Validation</h3>
+        <span class="validation-badge" [ngClass]="securityValidation ? 'valid' : 'invalid'">
+          {{ securityValidation ? 'Valid' : 'Invalid' }}
+        </span>
+      </div>
+      <div class="panel-content">
+        <div class="validation-details">
+          <div class="detail-item">
+            <span class="detail-label">Zone:</span>
+            <span class="detail-value" [ngClass]="getZoneClass(securityDetails.zone)">{{ securityDetails.zone }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Requires Authentication:</span>
+            <span class="detail-value" [ngClass]="securityDetails.policy.requiresAuth ? 'highlight' : ''">
+              {{ securityDetails.policy.requiresAuth ? 'Yes' : 'No' }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Permission Check:</span>
+            <span class="detail-value" [ngClass]="securityDetails.policy.requiresPermissionCheck ? 'highlight' : ''">
+              {{ securityDetails.policy.requiresPermissionCheck ? 'Yes' : 'No' }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Audit Required:</span>
+            <span class="detail-value" [ngClass]="securityDetails.policy.requiresAudit ? 'highlight' : ''">
+              {{ securityDetails.policy.requiresAudit ? 'Yes' : 'No' }}
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">CSRF Protection:</span>
+            <span class="detail-value" [ngClass]="securityDetails.policy.csrfProtection ? 'highlight' : ''">
+              {{ securityDetails.policy.csrfProtection ? 'Yes' : 'No' }}
+            </span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="detail-label">Encrypt Payload:</span>
+            <span class="detail-value" [ngClass]="securityDetails.policy.encryptPayload ? 'highlight' : ''">
+              {{ securityDetails.policy.encryptPayload ? 'Yes' : 'No' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response Panel -->
+    <div *ngIf="responseStatus !== null" class="panel">
+      <div class="panel-header">
+        <h3>Response</h3>
+        <div class="status-badge" [ngClass]="responseStatus < 400 ? 'success' : 'error'">
+          Status: {{ responseStatus }}
+        </div>
+      </div>
+      <div class="panel-content">
+        <div *ngIf="responseTime !== null" class="response-time">
+          <span class="time-label">Time:</span>
+          <span class="time-value">{{ responseTime }}ms</span>
+        </div>
+
+        <div *ngIf="responseHeaders" class="response-headers">
+          <h4>Headers</h4>
+          <div class="headers-list">
+            <div *ngFor="let header of responseHeaders | keyvalue" class="header-item">
+              <span class="header-name">{{ header.key }}:</span>
+              <span class="header-value">{{ header.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="response" class="response-body">
+          <h4>Body</h4>
+          <pre>{{ response | json }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

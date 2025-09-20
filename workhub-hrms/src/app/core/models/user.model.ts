@@ -21,6 +21,12 @@ export interface User {
   lastName: string;
   role: Role;
   token?: string;
+  departmentId?: number;
+  permissions?: string[];
+  // Additional security-related properties
+  lastLogin?: Date;
+  isActive?: boolean;
+  mfaEnabled?: boolean;
 }
 
 export interface LoginRequest {

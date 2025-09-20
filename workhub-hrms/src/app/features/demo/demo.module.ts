@@ -5,11 +5,13 @@ import { SharedModule } from '../../shared/shared.module';
 import { DemoRoutingModule } from './demo-routing.module';
 import { NotificationDemoComponent } from './notification-demo/notification-demo.component';
 import { WorkflowDemoComponent } from './workflow-demo/workflow-demo.component';
+import { SecurityDemoComponent } from './security-demo/security-demo.component';
 
 @NgModule({
   declarations: [
     NotificationDemoComponent,
-    WorkflowDemoComponent
+    WorkflowDemoComponent,
+    SecurityDemoComponent
   ],
   imports: [
     CommonModule,

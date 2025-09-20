@@ -18,6 +18,7 @@ import { NotificationToastContainerComponent } from './components/notification-t
 // Directives
 import { HasRoleDirective } from './directives/has-role.directive';
 import { TenantAwareDirective } from './directives/tenant-aware.directive';
+import { HasPermissionDirective } from './directives/has-permission.directive';
 
 // Pipes
 import { DateFormatPipe } from './pipes/date-format.pipe';
@@ -36,7 +37,8 @@ const components = [
 
 const directives = [
   HasRoleDirective,
-  TenantAwareDirective
+  TenantAwareDirective,
+  HasPermissionDirective
 ];
 
 const pipes = [
