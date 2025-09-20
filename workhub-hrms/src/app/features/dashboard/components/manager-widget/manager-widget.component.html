@@ -1,0 +1,149 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <h2>Manager Dashboard</h2>
+  </div>
+  
+  <div *ngIf="data" class="widget-content">
+    <!-- Team Summary -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Team Overview</h3>
+      <div class="team-summary">
+        <div class="summary-item">
+          <span class="summary-value">{{ data.teamSize }}</span>
+          <span class="summary-label">Team Members</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-value">{{ data.teamAttendance.present }}</span>
+          <span class="summary-label">Present Today</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-value">{{ data.pendingApprovals.length }}</span>
+          <span class="summary-label">Pending Approvals</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Attendance Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Team Attendance</h3>
+      <div class="attendance-summary">
+        <div class="attendance-chart">
+          <div class="chart-progress" [style.--percentage]="data.teamAttendance.percentage + '%'">
+            <span>{{ data.teamAttendance.percentage }}%</span>
+          </div>
+        </div>
+        <div class="attendance-stats">
+          <div class="stat-row">
+            <span class="stat-label">Present:</span>
+            <span class="stat-value">{{ data.teamAttendance.present }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Absent:</span>
+            <span class="stat-value">{{ data.teamAttendance.absent }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">On Leave:</span>
+            <span class="stat-value">{{ data.teamAttendance.onLeave }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pending Approvals -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Pending Approvals</h3>
+      <div *ngIf="data.pendingApprovals.length > 0" class="approvals-list">
+        <div *ngFor="let approval of data.pendingApprovals" class="approval-item"
+             [ngClass]="{'urgent': isUrgent(approval.submittedDate)}">
+          <div class="approval-content">
+            <span class="approval-type">{{ approval.type }}</span>
+            <span class="approval-employee">{{ approval.employee }}</span>
+            <span class="approval-date">Submitted: {{ formatDate(approval.submittedDate) }}</span>
+          </div>
+          <div class="approval-actions">
+            <span class="waiting-badge">
+              Waiting {{ getDaysElapsed(approval.submittedDate) }} days
+            </span>
+            <button class="approve-button" aria-label="Approve request">
+              <span class="material-icons">check_circle</span>
+            </button>
+            <button class="reject-button" aria-label="Reject request">
+              <span class="material-icons">cancel</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="data.pendingApprovals.length === 0" class="empty-state">
+        No pending approvals.
+      </div>
+    </div>
+    
+    <!-- Team Performance -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Team Performance</h3>
+      <div class="performance-chart">
+        <div class="performance-bar">
+          <div class="performance-segment excellent" 
+               [style.width.%]="(data.teamPerformance.excellent / data.teamSize) * 100">
+            {{ data.teamPerformance.excellent }}
+          </div>
+          <div class="performance-segment good" 
+               [style.width.%]="(data.teamPerformance.good / data.teamSize) * 100">
+            {{ data.teamPerformance.good }}
+          </div>
+          <div class="performance-segment average" 
+               [style.width.%]="(data.teamPerformance.average / data.teamSize) * 100">
+            {{ data.teamPerformance.average }}
+          </div>
+          <div class="performance-segment needs-improvement" 
+               [style.width.%]="(data.teamPerformance.needsImprovement / data.teamSize) * 100">
+            {{ data.teamPerformance.needsImprovement > 0 ? data.teamPerformance.needsImprovement : '' }}
+          </div>
+        </div>
+        <div class="performance-legend">
+          <div class="legend-item">
+            <span class="legend-color excellent"></span>
+            <span class="legend-label">Excellent</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color good"></span>
+            <span class="legend-label">Good</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color average"></span>
+            <span class="legend-label">Average</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color needs-improvement"></span>
+            <span class="legend-label">Needs Improvement</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Upcoming Reviews -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Upcoming Performance Reviews</h3>
+      <div *ngIf="data.upcomingReviews.length > 0" class="reviews-list">
+        <div *ngFor="let review of data.upcomingReviews" class="review-item">
+          <div class="review-content">
+            <span class="review-employee">{{ review.employee }}</span>
+            <span class="review-date">Due: {{ formatDate(review.dueDate) }}</span>
+          </div>
+          <div class="review-countdown" 
+               [ngClass]="{'urgent': getDaysRemaining(review.dueDate) < 3}">
+            {{ getDaysRemaining(review.dueDate) }} days remaining
+          </div>
+        </div>
+      </div>
+      <div *ngIf="data.upcomingReviews.length === 0" class="empty-state">
+        No upcoming reviews.
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!data" class="widget-loader">
+    <div class="spinner"></div>
+    <p>Loading manager data...</p>
+  </div>
+</div>

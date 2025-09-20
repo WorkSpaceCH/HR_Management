@@ -1,0 +1,175 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <h2>Admin Dashboard</h2>
+  </div>
+  
+  <div *ngIf="data" class="widget-content">
+    <!-- System Health Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>System Health</h3>
+      <div class="system-status">
+        <div class="status-indicator" [ngClass]="getHealthStatusClass(data.systemHealth.status)">
+          <span class="material-icons">{{ data.systemHealth.status === 'Healthy' ? 'check_circle' : 'warning' }}</span>
+          <span>{{ data.systemHealth.status }}</span>
+        </div>
+      </div>
+      
+      <div class="resource-meters">
+        <!-- CPU Usage -->
+        <div class="resource-item">
+          <div class="resource-label">
+            <span class="label-text">CPU</span>
+            <span class="label-value">{{ data.systemHealth.cpu }}%</span>
+          </div>
+          <div class="resource-bar">
+            <div class="resource-progress" [ngClass]="getResourceClass(data.systemHealth.cpu)"
+                 [style.width.%]="data.systemHealth.cpu"></div>
+          </div>
+        </div>
+        
+        <!-- Memory Usage -->
+        <div class="resource-item">
+          <div class="resource-label">
+            <span class="label-text">Memory</span>
+            <span class="label-value">{{ data.systemHealth.memory }}%</span>
+          </div>
+          <div class="resource-bar">
+            <div class="resource-progress" [ngClass]="getResourceClass(data.systemHealth.memory)"
+                 [style.width.%]="data.systemHealth.memory"></div>
+          </div>
+        </div>
+        
+        <!-- Storage Usage -->
+        <div class="resource-item">
+          <div class="resource-label">
+            <span class="label-text">Storage</span>
+            <span class="label-value">{{ data.systemHealth.storage }}%</span>
+          </div>
+          <div class="resource-bar">
+            <div class="resource-progress" [ngClass]="getResourceClass(data.systemHealth.storage)"
+                 [style.width.%]="data.systemHealth.storage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Active Users Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Active Users</h3>
+      <div class="users-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <span class="material-icons">group</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ data.activeUsers.total }}</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <span class="material-icons">schedule</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ data.activeUsers.lastHour }}</div>
+            <div class="stat-label">Last Hour</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <span class="material-icons">phone_android</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">{{ data.activeUsers.mobile }}</div>
+            <div class="stat-label">Mobile Users</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security Alerts Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Security Alerts</h3>
+      <div *ngIf="data.securityAlerts?.length > 0" class="alerts-list">
+        <div *ngFor="let alert of data.securityAlerts" class="alert-item" [ngClass]="getSeverityClass(alert.severity)">
+          <div class="alert-icon">
+            <span class="material-icons">
+              {{ alert.severity === 'High' ? 'error' : (alert.severity === 'Medium' ? 'warning' : 'info') }}
+            </span>
+          </div>
+          <div class="alert-details">
+            <div class="alert-type">{{ alert.type }}</div>
+            <div class="alert-count">{{ alert.count }} incidents</div>
+          </div>
+          <div class="alert-severity">{{ alert.severity }}</div>
+        </div>
+      </div>
+      <div *ngIf="!data.securityAlerts?.length" class="empty-state">
+        No security alerts at this time.
+      </div>
+    </div>
+    
+    <!-- Recent Updates Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Recent Updates</h3>
+      <div *ngIf="data.recentUpdates?.length > 0" class="updates-list">
+        <div *ngFor="let update of data.recentUpdates" class="update-item">
+          <div class="update-icon">
+            <span class="material-icons">system_update</span>
+          </div>
+          <div class="update-details">
+            <div class="update-component">{{ update.component }}</div>
+            <div class="update-version">Version {{ update.version }}</div>
+            <div class="update-date">{{ formatDate(update.date) }}</div>
+          </div>
+          <div class="update-actions">
+            <button class="details-button" aria-label="View update details">
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!data.recentUpdates?.length" class="empty-state">
+        No recent updates.
+      </div>
+    </div>
+    
+    <!-- Quick Actions Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Quick Actions</h3>
+      <div class="actions-grid">
+        <button class="action-button">
+          <span class="material-icons">backup</span>
+          <span>Backup</span>
+        </button>
+        <button class="action-button">
+          <span class="material-icons">cached</span>
+          <span>Clear Cache</span>
+        </button>
+        <button class="action-button">
+          <span class="material-icons">person_add</span>
+          <span>Add User</span>
+        </button>
+        <button class="action-button">
+          <span class="material-icons">settings</span>
+          <span>Settings</span>
+        </button>
+        <button class="action-button">
+          <span class="material-icons">lock</span>
+          <span>Security</span>
+        </button>
+        <button class="action-button">
+          <span class="material-icons">description</span>
+          <span>Logs</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!data" class="widget-loader">
+    <div class="spinner"></div>
+    <p>Loading admin data...</p>
+  </div>
+</div>

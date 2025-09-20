@@ -1,19 +1,193 @@
 .dashboard-container {
+  max-width: 1600px;
+  margin: 0 auto;
   padding: 20px;
 }
 
-.dashboard-card {
-  height: 100%;
+// Loading container
+.loading-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0;
+  
+  p {
+    margin-top: 16px;
+    color: #666;
+    font-size: 16px;
+  }
+}
 
-  mat-card-content {
-    flex-grow: 1;
+// Error state
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  text-align: center;
+  
+  .error-icon {
+    font-size: 48px;
+    color: #f44336;
+    margin-bottom: 20px;
+    
+    .material-icons {
+      font-size: 48px;
+    }
   }
   
-  &:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
+  h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: #333;
   }
+  
+  p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+}
+
+// Dashboard grid
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 20px;
+  
+  // Small tablets and large phones
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+    
+    .notifications-widget {
+      grid-column: span 2;
+    }
+  }
+  
+  // Medium devices (tablets, 768px and up)
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  // Large devices (desktops, 992px and up)
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+    
+    .notifications-widget {
+      grid-column: span 3;
+    }
+  }
+  
+  // Extra large devices (large desktops, 1200px and up)
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  // Widget item
+  .widget-item {
+    min-height: 400px;
+    height: 100%;
+  }
+}
+
+// Activity list (for notifications widget)
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    
+    .activity-icon {
+      margin-right: 12px;
+      background-color: #e3f2fd;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .material-icons {
+        font-size: 20px;
+        color: #1976d2;
+      }
+    }
+    
+    .activity-content {
+      flex: 1;
+      
+      .activity-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        
+        .activity-user {
+          font-weight: 500;
+          font-size: 14px;
+        }
+        
+        .activity-time {
+          font-size: 12px;
+          color: #666;
+        }
+      }
+      
+      .activity-message {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Empty state
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  color: #666;
+  font-style: italic;
+}
+
+// Accessibility statement
+.accessibility-info {
+  margin-top: 40px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  text-align: center;
+  
+  p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+}
+
+// Focus styles for accessibility
+:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+// For screen readers
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

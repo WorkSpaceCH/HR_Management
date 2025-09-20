@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NotificationService } from '../../../core/services/notification.service';
 
-@Component({
+@Component({ 
   selector: 'app-workflow-demo',
   templateUrl: './workflow-demo.component.html',
   styleUrls: ['./workflow-demo.component.scss']

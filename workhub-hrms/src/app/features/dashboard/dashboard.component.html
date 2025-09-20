@@ -1,66 +1,85 @@
 <div class="dashboard-container">
-  <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
-  <h2 class="text-xl text-gray-600 mb-6">Welcome to the WorkHub HRMS</h2>
+  <!-- Page Header -->
+  <app-page-header 
+    title="Dashboard" 
+    subtitle="Welcome to WorkHub HRMS - Your personalized workspace">
+  </app-page-header>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+    <p>Loading your dashboard...</p>
+  </div>
   
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <!-- Employee Dashboard -->
-    <div class="dashboard-card border rounded p-4 shadow-sm">
-      <div class="card-header mb-3">
-        <h3 class="text-xl font-bold">Employee Portal</h3>
-      </div>
-      <div class="card-content mb-4">
-        <p>Access your personal information, leave requests, and performance records.</p>
-      </div>
-      <div class="card-actions">
-        <a href="/employee" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">View Details</a>
-      </div>
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !currentUser" class="error-state">
+    <div class="error-icon">
+      <span class="material-icons">error_outline</span>
+    </div>
+    <h2>Authentication Required</h2>
+    <p>Please log in to view your personalized dashboard.</p>
+    <button mat-raised-button color="primary" routerLink="/auth/login">Login</button>
+  </div>
+  
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && currentUser" class="dashboard-grid">
+    
+    <!-- Employee Widget (Visible to all users) -->
+    <div class="widget-item" *ngIf="showEmployeeWidget">
+      <app-employee-widget [data]="dashboardData.employeeData"></app-employee-widget>
     </div>
     
-    <!-- Manager Dashboard -->
-    <div class="dashboard-card border rounded p-4 shadow-sm">
-      <div class="card-header mb-3">
-        <h3 class="text-xl font-bold">Manager Portal</h3>
-      </div>
-      <div class="card-content mb-4">
-        <p>Manage your team, approve requests, and track performance metrics.</p>
-      </div>
-      <div class="card-actions">
-        <a href="/manager" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">View Details</a>
-      </div>
+    <!-- Manager Widget (Visible to managers, HR, and admins) -->
+    <div class="widget-item" *ngIf="showManagerWidget">
+      <app-manager-widget [data]="dashboardData.managerData"></app-manager-widget>
     </div>
     
-    <!-- HR Dashboard -->
-    <div class="dashboard-card border rounded p-4 shadow-sm">
-      <div class="card-header mb-3">
-        <h3 class="text-xl font-bold">HR Portal</h3>
-      </div>
-      <div class="card-content mb-4">
-        <p>Manage recruitment, payroll, and organizational policies.</p>
-      </div>
-      <div class="card-actions">
-        <a href="/hr" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">View Details</a>
-      </div>
+    <!-- HR Analytics Widget (Visible to HR and admins) -->
+    <div class="widget-item" *ngIf="showHRWidget && showAnalyticsWidget">
+      <app-hr-analytics-widget [data]="dashboardData.hrData"></app-hr-analytics-widget>
     </div>
     
-    <!-- Admin Dashboard -->
-    <div class="dashboard-card border rounded p-4 shadow-sm">
-      <div class="card-header mb-3">
-        <h3 class="text-xl font-bold">Admin Portal</h3>
-      </div>
-      <div class="card-content mb-4">
-        <p>Manage system settings, user accounts, and security configurations.</p>
-      </div>
-      <div class="card-actions">
-        <a href="/admin" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">View Details</a>
+    <!-- Admin Widget (Visible to admins only) -->
+    <div class="widget-item" *ngIf="showAdminWidget">
+      <app-admin-widget [data]="dashboardData.adminData"></app-admin-widget>
+    </div>
+    
+    <!-- Notifications Widget (Visible to all) -->
+    <div class="widget-item notifications-widget">
+      <div class="widget-container">
+        <div class="widget-header">
+          <h2>Recent Notifications</h2>
+        </div>
+        <div class="widget-content">
+          <!-- Recent Activities From Analytics Data -->
+          <ng-container *ngIf="recentActivities && recentActivities.length > 0">
+            <div class="activity-list">
+              <div *ngFor="let activity of recentActivities" class="activity-item">
+                <div class="activity-icon">
+                  <span class="material-icons">notifications</span>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-user">{{ activity.user }}</span>
+                    <span class="activity-time">{{ formatDate(activity.timestamp) }}</span>
+                  </div>
+                  <div class="activity-message">{{ activity.action }}</div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          
+          <!-- Empty State -->
+          <div *ngIf="!recentActivities || recentActivities.length === 0" class="empty-state">
+            <p>No recent notifications.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
   
-  <!-- Role-based UI Demo Section -->
-  <div class="mt-8 p-4 border rounded shadow-sm">
-    <h2 class="text-2xl font-bold mb-2">Role-Based UI Controls Demo</h2>
-    <p class="text-gray-600 mb-4">This section demonstrates the different ways to implement role-based UI restrictions.</p>
-    
-    <app-role-demo></app-role-demo>
+  <!-- Accessibility Statement -->
+  <div class="accessibility-info">
+    <p>This dashboard is designed to be accessible. If you experience any issues, please contact support.</p>
   </div>
 </div>

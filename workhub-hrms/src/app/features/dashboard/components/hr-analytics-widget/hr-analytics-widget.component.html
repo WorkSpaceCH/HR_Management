@@ -1,0 +1,162 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <h2>HR Analytics</h2>
+  </div>
+  
+  <div *ngIf="data" class="widget-content">
+    <!-- HR Overview Card -->
+    <div class="info-card mat-elevation-z1">
+      <h3>HR Overview</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">{{ data.employeeCount }}</div>
+          <div class="stat-label">Total Employees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ data.openPositions?.length || 0 }}</div>
+          <div class="stat-label">Open Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ formatPercent(data.turnoverRate?.yearly) }}</div>
+          <div class="stat-label">Annual Turnover</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ data.recentHires?.length || 0 }}</div>
+          <div class="stat-label">Recent Hires</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Employee Distribution -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Employee Distribution by Department</h3>
+      <div class="chart-container">
+        <!-- For Material Solution -->
+        <div class="pie-chart">
+          <div *ngFor="let item of employeeDistribution; let i = index" 
+               class="pie-segment"
+               [style.--segment-color]="colorScheme.domain[i % colorScheme.domain.length]"
+               [style.--segment-percent]="(item.value / data.employeeCount * 100) + '%'">
+            <div class="segment-label">
+              <strong>{{ item.name }}</strong>
+              <span>{{ item.value }} ({{ (item.value / data.employeeCount * 100).toFixed(1) }}%)</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fallback if using ngx-charts -->
+        <!-- 
+        <ngx-charts-pie-chart
+          [results]="employeeDistribution"
+          [scheme]="colorScheme"
+          [legend]="true"
+          [labels]="true"
+          [doughnut]="false">
+        </ngx-charts-pie-chart>
+        -->
+      </div>
+    </div>
+    
+    <!-- Department Metrics Table -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Department Metrics</h3>
+      <div class="table-container">
+        <table mat-table [dataSource]="departmentMetricsDataSource" class="mat-elevation-z0 metrics-table">
+          <!-- Department Column -->
+          <ng-container matColumnDef="department">
+            <th mat-header-cell *matHeaderCellDef>Department</th>
+            <td mat-cell *matCellDef="let element">{{ element.department }}</td>
+          </ng-container>
+          
+          <!-- Headcount Column -->
+          <ng-container matColumnDef="headcount">
+            <th mat-header-cell *matHeaderCellDef>Headcount</th>
+            <td mat-cell *matCellDef="let element">{{ element.headcount }}</td>
+          </ng-container>
+          
+          <!-- Open Positions Column -->
+          <ng-container matColumnDef="openPositions">
+            <th mat-header-cell *matHeaderCellDef>Open Positions</th>
+            <td mat-cell *matCellDef="let element">{{ element.openPositions }}</td>
+          </ng-container>
+          
+          <!-- Turnover Rate Column -->
+          <ng-container matColumnDef="turnoverRate">
+            <th mat-header-cell *matHeaderCellDef>Turnover Rate</th>
+            <td mat-cell *matCellDef="let element">{{ formatPercent(element.turnoverRate) }}</td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="departmentMetricsColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: departmentMetricsColumns;"></tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Recruitment Metrics Table -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Recruitment Metrics</h3>
+      <div class="table-container">
+        <table mat-table [dataSource]="recruitmentMetricsDataSource" class="mat-elevation-z0 metrics-table">
+          <!-- Position Column -->
+          <ng-container matColumnDef="position">
+            <th mat-header-cell *matHeaderCellDef>Position</th>
+            <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+          </ng-container>
+          
+          <!-- Applicants Column -->
+          <ng-container matColumnDef="applicants">
+            <th mat-header-cell *matHeaderCellDef>Applicants</th>
+            <td mat-cell *matCellDef="let element">{{ element.applicants }}</td>
+          </ng-container>
+          
+          <!-- Interviewed Column -->
+          <ng-container matColumnDef="interviewed">
+            <th mat-header-cell *matHeaderCellDef>Interviewed</th>
+            <td mat-cell *matCellDef="let element">{{ element.interviewed }}</td>
+          </ng-container>
+          
+          <!-- Hired Column -->
+          <ng-container matColumnDef="hired">
+            <th mat-header-cell *matHeaderCellDef>Hired</th>
+            <td mat-cell *matCellDef="let element">{{ element.hired }}</td>
+          </ng-container>
+          
+          <!-- Conversion Rate Column -->
+          <ng-container matColumnDef="conversionRate">
+            <th mat-header-cell *matHeaderCellDef>Conversion</th>
+            <td mat-cell *matCellDef="let element">{{ element.conversionRate }}</td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="recruitmentMetricsColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: recruitmentMetricsColumns;"></tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Recent Hires -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Recent Hires</h3>
+      <div *ngIf="data.recentHires?.length > 0" class="recent-hires-list">
+        <div *ngFor="let hire of data.recentHires" class="hire-item">
+          <div class="hire-avatar">
+            {{ hire.name.charAt(0) }}
+          </div>
+          <div class="hire-details">
+            <div class="hire-name">{{ hire.name }}</div>
+            <div class="hire-position">{{ hire.position }}</div>
+            <div class="hire-department">{{ hire.department }}</div>
+            <div class="hire-date">Joined: {{ formatDate(hire.joinDate) }}</div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!data.recentHires?.length" class="empty-state">
+        No recent hires.
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!data" class="widget-loader">
+    <div class="spinner"></div>
+    <p>Loading HR analytics data...</p>
+  </div>
+</div>

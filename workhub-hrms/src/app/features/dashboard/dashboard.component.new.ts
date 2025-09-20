@@ -1,15 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SecurityContextService } from '../../core/security/services/security-context.service';
 import { DashboardService } from './services/dashboard.service';
 import { forkJoin } from 'rxjs';
-import { ApiService } from '../../core/network/services/api.service';
-import { DASHBOARD_SERVICE_TOKEN } from './services/dashboard.tokens';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  providers: [DashboardService, ApiService]
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   // User context
@@ -41,8 +38,7 @@ export class DashboardComponent implements OnInit {
   
   constructor(
     private securityContext: SecurityContextService,
-    @Inject(DASHBOARD_SERVICE_TOKEN) private dashboardService: DashboardService,
-    private apiService: ApiService
+    private dashboardService: DashboardService
   ) {}
   
   ngOnInit(): void {

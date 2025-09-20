@@ -1,0 +1,114 @@
+<div class="widget-container">
+  <div class="widget-header">
+    <h2>Employee Dashboard</h2>
+  </div>
+  
+  <div *ngIf="data" class="widget-content">
+    <!-- Profile Summary -->
+    <div class="profile-card mat-elevation-z1">
+      <div class="profile-header">
+        <div class="avatar">
+          <span>{{ data.profile.name.charAt(0) }}</span>
+        </div>
+        <div class="profile-info">
+          <h3>{{ data.profile.name }}</h3>
+          <p>{{ data.profile.position }} • {{ data.profile.department }}</p>
+          <p class="text-muted">Joined {{ formatDate(data.profile.joinDate) }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Leave Balance -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Leave Balance</h3>
+      <div class="leave-balance">
+        <div class="leave-stats">
+          <div class="stat-item">
+            <span class="stat-value">{{ data.leaveBalance.annual }}</span>
+            <span class="stat-label">Annual Leave</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{ data.leaveBalance.sick }}</span>
+            <span class="stat-label">Sick Leave</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{ data.leaveBalance.used }}</span>
+            <span class="stat-label">Used</span>
+          </div>
+        </div>
+        <div class="leave-usage">
+          <div class="progress-container">
+            <div class="progress-bar" [style.width.%]="leaveUsagePercentage"></div>
+          </div>
+          <p class="text-muted">{{ leaveUsagePercentage }}% of leave used</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pending Tasks -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Pending Tasks</h3>
+      <div *ngIf="data.pendingTasks.length > 0" class="task-list">
+        <div *ngFor="let task of data.pendingTasks" class="task-item">
+          <div class="task-content">
+            <span class="task-title">{{ task.title }}</span>
+            <span class="task-due">Due: {{ formatDate(task.deadline) }}</span>
+          </div>
+          <div class="task-status" [ngClass]="{'urgent': getDaysRemaining(task.deadline) < 3}">
+            {{ getDaysRemaining(task.deadline) }} days left
+          </div>
+        </div>
+      </div>
+      <div *ngIf="data.pendingTasks.length === 0" class="empty-state">
+        No pending tasks.
+      </div>
+    </div>
+    
+    <!-- Announcements -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Announcements</h3>
+      <div *ngIf="data.announcements.length > 0" class="announcement-list">
+        <div *ngFor="let announcement of data.announcements" class="announcement-item" 
+            [ngClass]="{'important': announcement.important, 'recent': isRecent(announcement.date)}">
+          <div class="announcement-content">
+            <span class="announcement-title">{{ announcement.title }}</span>
+            <span class="announcement-date">{{ formatDate(announcement.date) }}</span>
+          </div>
+          <div *ngIf="announcement.important" class="announcement-badge">
+            Important
+          </div>
+          <div *ngIf="isRecent(announcement.date) && !announcement.important" class="announcement-badge new">
+            New
+          </div>
+        </div>
+      </div>
+      <div *ngIf="data.announcements.length === 0" class="empty-state">
+        No announcements at this time.
+      </div>
+    </div>
+    
+    <!-- Upcoming Holidays -->
+    <div class="info-card mat-elevation-z1">
+      <h3>Upcoming Holidays</h3>
+      <div *ngIf="data.upcomingHolidays.length > 0" class="holiday-list">
+        <div *ngFor="let holiday of data.upcomingHolidays" class="holiday-item">
+          <div class="holiday-content">
+            <span class="holiday-name">{{ holiday.name }}</span>
+            <span class="holiday-date">{{ formatDate(holiday.date) }}</span>
+          </div>
+          <div class="holiday-countdown">
+            {{ getDaysRemaining(holiday.date) }} days away
+          </div>
+        </div>
+      </div>
+      <div *ngIf="data.upcomingHolidays.length === 0" class="empty-state">
+        No upcoming holidays.
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!data" class="widget-loader">
+    <div class="spinner"></div>
+    <p>Loading employee data...</p>
+  </div>
+</div>

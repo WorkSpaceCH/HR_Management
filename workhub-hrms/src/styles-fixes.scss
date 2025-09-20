@@ -1,0 +1,28 @@
+/* Fix for dropdowns with white text on white background */
+select,
+select option {
+  color: #333 !important; /* Ensure text is always dark */
+  background-color: white;
+}
+
+/* Style for selected option */
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #e8eaf6 !important; /* Light blue background */
+  color: #3f51b5 !important; /* Brand color for selected text */
+}
+
+/* Material select panels may need separate styles */
+.mat-select-panel {
+  .mat-option {
+    color: #333 !important;
+    
+    &.mat-selected,
+    &.mat-active,
+    &:hover {
+      background-color: #e8eaf6 !important;
+      color: #3f51b5 !important;
+    }
+  }
+}
