@@ -1,0 +1,87 @@
+<div class="main-layout">
+  <!-- Header with navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" (click)="toggleMenu()">
+        <span class="menu-icon">☰</span>
+      </button>
+      <div class="app-title">WorkHub HRMS</div>
+    </div>
+    
+    <div class="header-middle">
+      <!-- Department Selector -->
+      <app-department-selector *ngIf="currentUser$ | async"></app-department-selector>
+    </div>
+    
+    <div class="header-right">
+      <ng-container *ngIf="currentUser$ | async as user; else loginButton">
+        <div class="user-info">
+          <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+          <span class="user-role">({{ user.role }})</span>
+        </div>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </ng-container>
+      
+      <ng-template #loginButton>
+        <button class="login-btn" routerLink="/auth/login">Login</button>
+      </ng-template>
+    </div>
+  </header>
+  
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar-nav" [class.open]="isMenuOpen">
+    <div class="nav-header">
+      <div class="nav-title">Navigation</div>
+      <button class="nav-close" (click)="toggleMenu()">✕</button>
+    </div>
+    
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+      </li>
+      
+      <li *appHasRole="[Role.EMPLOYEE, Role.MANAGER, Role.HR, Role.ADMIN]">
+        <a routerLink="/employee" routerLinkActive="active">
+          <span class="nav-icon">👤</span>
+          <span class="nav-label">Employee</span>
+        </a>
+      </li>
+      
+      <li *appHasRole="[Role.MANAGER, Role.HR, Role.ADMIN]">
+        <a routerLink="/manager" routerLinkActive="active">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Manager</span>
+        </a>
+      </li>
+      
+      <li *appHasRole="[Role.HR, Role.ADMIN]">
+        <a routerLink="/hr" routerLinkActive="active">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label">HR</span>
+        </a>
+      </li>
+      
+      <li *appHasRole="[Role.ADMIN]">
+        <a routerLink="/admin" routerLinkActive="active">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Admin</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="nav-footer">
+      <div *ngIf="activeDepartment$ | async as dept" class="current-context">
+        <div class="context-label">Current Department:</div>
+        <div class="context-value">{{ dept.name }}</div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

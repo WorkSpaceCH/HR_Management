@@ -1,0 +1,55 @@
+<div class="employee-list-container">
+  <!-- Header section with tenant context info -->
+  <div class="list-header">
+    <h2>Employee List</h2>
+    <div class="tenant-context" *ngIf="activeDepartment$ | async as dept">
+      <span class="context-label">Showing employees for:</span>
+      <span class="context-value">{{ dept.name }} Department</span>
+    </div>
+    <div class="tenant-context" *ngIf="!(activeDepartment$ | async)">
+      <span class="context-label">Showing:</span>
+      <span class="context-value">All Employees</span>
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading employees...</div>
+  </div>
+  
+  <!-- Employees table -->
+  <div *ngIf="!loading" class="employee-table-container">
+    <table class="employee-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Position</th>
+          <th>Department</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees$ | async" class="employee-row">
+          <td>{{ employee.id }}</td>
+          <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+          <td>{{ employee.position }}</td>
+          <td>{{ getDepartmentName(employee.departmentId) | async }}</td>
+          <td>{{ employee.email }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + employee.status">
+              {{ employee.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Empty state -->
+    <div *ngIf="(employees$ | async)?.length === 0" class="empty-state">
+      <p>No employees found in the selected department.</p>
+    </div>
+  </div>
+</div>
