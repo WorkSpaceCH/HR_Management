@@ -1,0 +1,43 @@
+<div class="employee-dashboard">
+  <h1>Employee Dashboard</h1>
+  
+  <div class="dashboard-cards">
+    <div class="dashboard-card">
+      <div class="card-icon">👤</div>
+      <div class="card-content">
+        <h3>My Profile</h3>
+        <p>View and update your personal information</p>
+        <a [routerLink]="['/employee/profile']" class="card-link">View Profile</a>
+      </div>
+    </div>
+    
+    <div class="dashboard-card">
+      <div class="card-icon">📋</div>
+      <div class="card-content">
+        <h3>Leave Requests</h3>
+        <p>Submit and track your leave requests</p>
+        <a [routerLink]="['/employee/leave-requests']" class="card-link">Manage Leaves</a>
+      </div>
+    </div>
+    
+    <div class="dashboard-card">
+      <div class="card-icon">👥</div>
+      <div class="card-content">
+        <h3>Employee Directory</h3>
+        <p>View all employees based on department context</p>
+        <a [routerLink]="['/employee/list']" class="card-link">View Employees</a>
+      </div>
+    </div>
+    
+    <div class="dashboard-card tenant-context-card">
+      <div class="card-icon">🏢</div>
+      <div class="card-content">
+        <h3>Department Context</h3>
+        <p>Change department context using the selector in the header</p>
+        <p class="info-text">
+          Try changing the department context to see how it affects the employee list!
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

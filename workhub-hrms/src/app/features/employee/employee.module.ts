@@ -5,12 +5,14 @@ import { EmployeeRoutingModule } from './employee-routing.module';
 import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashboard.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LeaveRequestsComponent } from './leave-requests/leave-requests.component';
+import { EmployeeListComponent } from './employee-list/employee-list.component';
 
 @NgModule({
   declarations: [
     EmployeeDashboardComponent,
     ProfileComponent,
-    LeaveRequestsComponent
+    LeaveRequestsComponent,
+    EmployeeListComponent
   ],
   imports: [
     CommonModule,

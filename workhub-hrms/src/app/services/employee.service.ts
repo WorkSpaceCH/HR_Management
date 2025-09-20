@@ -1,20 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, delay } from 'rxjs/operators';
 import { ApiService } from './api.service';
-
-export interface Employee {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  position: string;
-  department: string;
-  hireDate: Date;
-  salary: number;
-  managerId?: number;
-  status: 'active' | 'inactive' | 'terminated' | 'on_leave';
-}
+import { TenantService } from '../core/services/tenant.service';
+import { MOCK_EMPLOYEES } from '../core/data/mock-employees';
+import { Employee } from '../core/models/employee.model';
 
 export interface LeaveRequest {
   id: number;
@@ -33,12 +23,40 @@ export interface LeaveRequest {
 })
 export class EmployeeService {
   private basePath = 'employees';
-
-  constructor(private apiService: ApiService) {}
+  
+  constructor(
+    private apiService: ApiService,
+    private tenantService: TenantService
+  ) {}
 
   // Employee CRUD operations
+  /**
+   * Get all employees with tenant filtering applied
+   */
   getEmployees(): Observable<Employee[]> {
-    return this.apiService.get<Employee[]>(this.basePath);
+    // For development, we'll use mock data with simulated API delay
+    return of(MOCK_EMPLOYEES).pipe(
+      delay(300),
+      map(employees => this.filterByTenant(employees))
+    );
+    
+    // Real API implementation (commented out for now)
+    // return this.apiService.get<Employee[]>(this.basePath);
+  }
+  
+  /**
+   * Filter employees by active tenant
+   */
+  private filterByTenant(employees: Employee[]): Employee[] {
+    const tenantId = this.tenantService.getActiveTenantId();
+    
+    // If no tenant is selected, or user is admin, show all employees
+    if (!tenantId) {
+      return employees;
+    }
+    
+    // Return only employees that belong to the current tenant (department)
+    return employees.filter(emp => this.tenantService.belongsToActiveTenant(emp.departmentId));
   }
 
   getEmployee(id: number): Observable<Employee> {

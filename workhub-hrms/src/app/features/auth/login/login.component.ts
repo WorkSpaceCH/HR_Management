@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -45,6 +46,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     this.submitted = true;
+    this.error = '';
 
     // stop here if form is invalid
     if (this.loginForm.invalid) {
@@ -53,16 +55,19 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.authService.login(this.f['email'].value, this.f['password'].value)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
       .subscribe({
-        next: () => {
-          this.router.navigate([this.returnUrl]);
+        next: (user) => {
+          console.log('Login successful', user);
+          this.router.navigateByUrl(this.returnUrl);
         },
-        error: error => {
-          this.error = error;
-          this.loading = false;
-        },
-        complete: () => {
-          this.loading = false;
+        error: (err) => {
+          this.error = err.message || 'Invalid username or password';
+          console.error('Login error:', err);
         }
       });
   }

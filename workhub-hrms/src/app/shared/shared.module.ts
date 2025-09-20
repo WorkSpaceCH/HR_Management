@@ -8,9 +8,12 @@ import { MaterialModule } from './material.module';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { DepartmentSelectorComponent } from './components/department-selector/department-selector.component';
 
 // Directives
 import { HasRoleDirective } from './directives/has-role.directive';
+import { TenantAwareDirective } from './directives/tenant-aware.directive';
 
 // Pipes
 import { DateFormatPipe } from './pipes/date-format.pipe';
@@ -18,11 +21,14 @@ import { DateFormatPipe } from './pipes/date-format.pipe';
 const components = [
   PageHeaderComponent,
   LoadingSpinnerComponent,
-  ConfirmDialogComponent
+  ConfirmDialogComponent,
+  UnauthorizedComponent,
+  DepartmentSelectorComponent
 ];
 
 const directives = [
-  HasRoleDirective
+  HasRoleDirective,
+  TenantAwareDirective
 ];
 
 const pipes = [

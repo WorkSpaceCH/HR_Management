@@ -1,0 +1,27 @@
+<div class="department-selector-container">
+  <div class="selector-label">Department:</div>
+  
+  <div class="selector-field">
+    <select 
+      [value]="activeDepartment?.id || ''"
+      (change)="onDepartmentChange($event)"
+      class="department-select">
+      
+      <!-- Option to view all departments (for admins only) -->
+      <option *ngIf="isAdmin" [value]="">All Departments</option>
+      
+      <!-- Department options -->
+      <option *ngFor="let dept of departments$ | async" [value]="dept.id">
+        {{ dept.name }}
+      </option>
+    </select>
+    
+    <!-- Clear selection button (for admins only) -->
+    <button 
+      *ngIf="isAdmin && activeDepartment" 
+      (click)="clearDepartmentSelection()" 
+      class="clear-button">
+      ✕
+    </button>
+  </div>
+</div>
