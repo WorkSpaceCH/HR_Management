@@ -1,0 +1,23 @@
+<div 
+  class="notification-toast" 
+  [@toastAnimation]="animationState"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="toast-icon" [ngClass]="getTypeClass(notification.type)">
+    <i class="fa fa-{{ getTypeIcon(notification.type) }}"></i>
+  </div>
+  
+  <div class="toast-content">
+    <h5>{{ notification.title }}</h5>
+    <p>{{ notification.message }}</p>
+    
+    <div *ngIf="notification.action" class="toast-action">
+      <button class="action-btn">{{ notification.action.label }}</button>
+    </div>
+  </div>
+  
+  <button class="toast-close" (click)="close()" aria-label="Close notification">
+    <i class="fa fa-times"></i>
+  </button>
+</div>

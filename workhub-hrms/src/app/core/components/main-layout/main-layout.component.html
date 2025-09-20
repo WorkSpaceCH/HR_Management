@@ -15,6 +15,9 @@
     
     <div class="header-right">
       <ng-container *ngIf="currentUser$ | async as user; else loginButton">
+        <!-- Notification Center -->  
+        <app-notification-center></app-notification-center>
+        
         <div class="user-info">
           <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
           <span class="user-role">({{ user.role }})</span>
@@ -69,6 +72,25 @@
           <span class="nav-icon">⚙️</span>
           <span class="nav-label">Admin</span>
         </a>
+      </li>
+      
+      <li *appHasRole="[Role.ADMIN]" class="dropdown">
+        <a class="dropdown-toggle" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" routerLink="/demo">
+          <span class="nav-icon">🔔</span>
+          <span class="nav-label">Notification System</span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a routerLink="/demo/notifications" routerLinkActive="active">
+              <span class="nav-label">Custom Notifications</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/demo/workflow" routerLinkActive="active">
+              <span class="nav-label">Workflow Demo</span>
+            </a>
+          </li>
+        </ul>
       </li>
     </ul>
     

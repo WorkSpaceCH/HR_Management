@@ -11,6 +11,9 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { DepartmentSelectorComponent } from './components/department-selector/department-selector.component';
 import { RoleDemoComponent } from './components/role-demo/role-demo.component';
+import { NotificationCenterComponent } from './components/notification-center/notification-center.component';
+import { NotificationToastComponent } from './components/notification-toast/notification-toast.component';
+import { NotificationToastContainerComponent } from './components/notification-toast-container/notification-toast-container.component';
 
 // Directives
 import { HasRoleDirective } from './directives/has-role.directive';
@@ -25,7 +28,10 @@ const components = [
   ConfirmDialogComponent,
   UnauthorizedComponent,
   DepartmentSelectorComponent,
-  RoleDemoComponent
+  RoleDemoComponent,
+  NotificationCenterComponent,
+  NotificationToastComponent,
+  NotificationToastContainerComponent
 ];
 
 const directives = [

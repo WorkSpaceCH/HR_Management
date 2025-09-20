@@ -1,0 +1,98 @@
+<div class="notification-demo-container">
+  <app-page-header title="Notification System Demo" subtitle="Test and explore the notification functionality"></app-page-header>
+
+  <div class="demo-content">
+    <div class="demo-section">
+      <h3>Custom Notification</h3>
+      <div class="form-container">
+        <div class="form-row">
+          <label for="notificationTitle">Title:</label>
+          <input type="text" id="notificationTitle" [(ngModel)]="notificationTitle" placeholder="Enter title">
+        </div>
+        
+        <div class="form-row">
+          <label for="notificationMessage">Message:</label>
+          <textarea id="notificationMessage" [(ngModel)]="notificationMessage" placeholder="Enter message"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <label for="notificationType">Type:</label>
+          <select id="notificationType" [(ngModel)]="selectedType">
+            <option *ngFor="let type of notificationTypes" [value]="type">{{ type | titlecase }}</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <label for="notificationCategory">Category:</label>
+          <select id="notificationCategory" [(ngModel)]="selectedCategory">
+            <option *ngFor="let category of notificationCategories" [value]="category">{{ category | titlecase }}</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <label for="targetRole">Target Role:</label>
+          <select id="targetRole" [(ngModel)]="targetRole">
+            <option value="">All Roles</option>
+            <option value="employee">Employee</option>
+            <option value="manager">Manager</option>
+            <option value="hr">HR</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        
+        <div class="form-row checkbox-row">
+          <input type="checkbox" id="addAction" [(ngModel)]="addAction">
+          <label for="addAction">Add Action Button</label>
+        </div>
+        
+        <div *ngIf="addAction" class="action-inputs">
+          <div class="form-row">
+            <label for="actionLabel">Button Label:</label>
+            <input type="text" id="actionLabel" [(ngModel)]="actionLabel" placeholder="View Details">
+          </div>
+          
+          <div class="form-row">
+            <label for="actionRoute">Route:</label>
+            <input type="text" id="actionRoute" [(ngModel)]="actionRoute" placeholder="/dashboard">
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button class="send-btn" (click)="sendNotification()">Send Notification</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="demo-section">
+      <h3>Preset Notifications</h3>
+      <p>Click buttons below to send predefined notification types:</p>
+      
+      <div class="preset-buttons">
+        <button class="preset-btn info" (click)="sendPresetNotification('info')">
+          <i class="fa fa-info-circle"></i>
+          Info Notification
+        </button>
+        
+        <button class="preset-btn leave" (click)="sendPresetNotification('leave')">
+          <i class="fa fa-calendar"></i>
+          Leave Request Approved
+        </button>
+        
+        <button class="preset-btn review" (click)="sendPresetNotification('review')">
+          <i class="fa fa-chart-line"></i>
+          Performance Review
+        </button>
+        
+        <button class="preset-btn task" (click)="sendPresetNotification('task')">
+          <i class="fa fa-tasks"></i>
+          Task Assigned
+        </button>
+        
+        <button class="preset-btn payroll" (click)="sendPresetNotification('payroll')">
+          <i class="fa fa-money-bill"></i>
+          Payroll Processed
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

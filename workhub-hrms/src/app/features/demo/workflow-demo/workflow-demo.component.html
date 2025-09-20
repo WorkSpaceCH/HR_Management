@@ -1,0 +1,80 @@
+<div class="workflow-demo-container">
+  <app-page-header title="Workflow Notification Demo" subtitle="See how notifications integrate with various HR workflows"></app-page-header>
+
+  <div class="demo-content">
+    <!-- Leave Requests Section -->
+    <div class="demo-section">
+      <h3>Leave Approval Workflow</h3>
+      <p>Simulate leave request approvals and notifications</p>
+      
+      <div class="request-list">
+        <div *ngFor="let request of leaveRequests" class="request-card" [class.approved]="request.status === 'approved'" [class.rejected]="request.status === 'rejected'">
+          <div class="request-details">
+            <h4>{{ request.employee }}</h4>
+            <p>{{ request.startDate }} to {{ request.endDate }}</p>
+            <p><strong>Reason:</strong> {{ request.reason }}</p>
+            <p><strong>Status:</strong> <span class="status-badge" [class]="request.status">{{ request.status | titlecase }}</span></p>
+          </div>
+          <div class="request-actions">
+            <button class="approve-btn" [disabled]="request.status !== 'pending'" (click)="approveLeaveRequest(request)">Approve</button>
+            <button class="reject-btn" [disabled]="request.status !== 'pending'" (click)="rejectLeaveRequest(request)">Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Task Assignment Section -->
+    <div class="demo-section">
+      <h3>Task Assignment Workflow</h3>
+      <p>Assign tasks to team members</p>
+      
+      <div class="task-list">
+        <div *ngFor="let task of tasks" class="task-card">
+          <div class="task-details">
+            <h4>{{ task.title }}</h4>
+            <p><strong>Due:</strong> {{ task.dueDate }}</p>
+            <p><strong>Assignee:</strong> {{ task.assignee }}</p>
+            <p><strong>Status:</strong> <span class="status-badge" [class]="task.status">{{ task.status === 'in_progress' ? 'In Progress' : task.status === 'not_started' ? 'Not Started' : task.status | titlecase }}</span></p>
+          </div>
+          <div class="task-actions">
+            <label for="assignee-{{ task.id }}">Reassign to:</label>
+            <select id="assignee-{{ task.id }}" #assigneeSelect>
+              <option *ngFor="let employee of employees" [value]="employee.id">{{ employee.name }}</option>
+            </select>
+            <button class="assign-btn" (click)="assignTask(task, +assigneeSelect.value)">Reassign</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Other Workflow Actions -->
+    <div class="demo-section">
+      <h3>Other Workflow Actions</h3>
+      <p>Trigger additional workflow-related notifications</p>
+      
+      <div class="workflow-actions">
+        <div class="action-card">
+          <h4>Performance Reviews</h4>
+          <p>Schedule performance reviews for team members</p>
+          <div class="form-group">
+            <label for="review-employee">Select Employee:</label>
+            <select id="review-employee" #reviewEmployee>
+              <option *ngFor="let employee of employees" [value]="employee.id">{{ employee.name }}</option>
+            </select>
+          </div>
+          <button class="action-btn schedule-btn" (click)="schedulePerformanceReview(+reviewEmployee.value)">
+            Schedule Review
+          </button>
+        </div>
+        
+        <div class="action-card">
+          <h4>Payroll Processing</h4>
+          <p>Process payroll and notify employees</p>
+          <button class="action-btn payroll-btn" (click)="processPayroll()">
+            Process Payroll
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,246 @@
+.workflow-demo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.demo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.demo-section {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #333;
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  p {
+    color: #666;
+    margin-bottom: 20px;
+  }
+}
+
+.request-list, .task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+}
+
+.request-card, .task-card {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s;
+  
+  &.approved {
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
+  }
+  
+  &.rejected {
+    background-color: #ffebee;
+    border-color: #ffcdd2;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h4 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.request-actions, .task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.status-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  
+  &.pending {
+    background-color: #fff8e1;
+    color: #ff8f00;
+  }
+  
+  &.approved {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  &.rejected {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  &.in_progress {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+  
+  &.not_started {
+    background-color: #f5f5f5;
+    color: #616161;
+  }
+  
+  &.completed {
+    background-color: #e0f2f1;
+    color: #00796b;
+  }
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+  border: none;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background-color: darken(#4caf50, 10%);
+  }
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background-color: darken(#f44336, 10%);
+  }
+}
+
+.assign-btn {
+  background-color: #3f51b5;
+  color: white;
+  
+  &:hover {
+    background-color: darken(#3f51b5, 10%);
+  }
+}
+
+select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  margin-right: 8px;
+  min-width: 150px;
+  
+  &:focus {
+    border-color: #3f51b5;
+    outline: none;
+  }
+}
+
+.workflow-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.action-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  label {
+    font-size: 14px;
+    color: #555;
+  }
+}
+
+.action-btn {
+  margin-top: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  align-self: flex-end;
+}
+
+.schedule-btn {
+  background-color: #9c27b0;
+  color: white;
+  
+  &:hover {
+    background-color: darken(#9c27b0, 10%);
+  }
+}
+
+.payroll-btn {
+  background-color: #ff9800;
+  color: white;
+  
+  &:hover {
+    background-color: darken(#ff9800, 10%);
+  }
+}
+
+@media (max-width: 768px) {
+  .request-list, .task-list, .workflow-actions {
+    grid-template-columns: 1fr;
+  }
+}

@@ -40,6 +40,12 @@ const routes: Routes = [
     data: { roles: [Role.ADMIN] }
   },
   {
+    path: 'demo',
+    loadChildren: () => import('./features/demo/demo.module').then(m => m.DemoModule),
+    canActivate: [AuthGuard],
+    data: { roles: [Role.ADMIN] }
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },

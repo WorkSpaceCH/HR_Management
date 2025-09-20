@@ -1,0 +1,120 @@
+<div class="notification-center">
+  <!-- Notification Bell and Badge -->
+  <button 
+    class="notification-bell" 
+    [class.has-notifications]="unreadCount > 0"
+    (click)="togglePanel()"
+    aria-label="Toggle notifications"
+  >
+    <i class="fa fa-bell"></i>
+    <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+  </button>
+  
+  <!-- Notification Panel (conditionally displayed) -->
+  <div *ngIf="isPanelOpen" class="notification-panel-overlay" (click)="closePanel()"></div>
+  <div *ngIf="isPanelOpen" class="notification-panel" @slideInOut>
+    <div class="panel-header">
+      <h3>Notifications</h3>
+      <div class="panel-actions">
+        <button 
+          *ngIf="unreadCount > 0" 
+          class="mark-read-btn" 
+          (click)="markAllAsRead()"
+          aria-label="Mark all as read"
+        >
+          Mark all as read
+        </button>
+        <button class="close-btn" (click)="closePanel()" aria-label="Close panel">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'all'"
+        (click)="setActiveTab('all')"
+      >
+        All
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'unread'"
+        (click)="setActiveTab('unread')"
+      >
+        Unread
+        <span class="tab-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="notification-content">
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading notifications...</p>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && filteredNotifications.length === 0" class="empty-state">
+        <i class="fa fa-bell-slash empty-icon"></i>
+        <p>No notifications to display</p>
+      </div>
+      
+      <!-- Notification List -->
+      <div *ngIf="!isLoading && filteredNotifications.length > 0" class="notification-list">
+        <div 
+          *ngFor="let notification of filteredNotifications" 
+          class="notification-item"
+          [class.unread]="!notification.isRead"
+          (click)="handleNotificationClick(notification)"
+          @fadeIn
+        >
+          <div class="notification-icon" [ngClass]="getNotificationTypeClass(notification.type)">
+            <i class="fa fa-{{ getNotificationIcon(notification.category) }}"></i>
+          </div>
+          
+          <div class="notification-content">
+            <div class="notification-header">
+              <h4>{{ notification.title }}</h4>
+              <span class="notification-time">{{ getRelativeTime(notification.timestamp) }}</span>
+            </div>
+            <p class="notification-message">{{ notification.message }}</p>
+            <div *ngIf="notification.action" class="notification-action">
+              <button class="action-btn">{{ notification.action.label }}</button>
+            </div>
+          </div>
+          
+          <div class="notification-actions">
+            <button 
+              class="icon-btn mark-read-btn" 
+              *ngIf="!notification.isRead"
+              (click)="markAsRead(notification, $event)" 
+              aria-label="Mark as read"
+            >
+              <i class="fa fa-check"></i>
+            </button>
+            <button 
+              class="icon-btn delete-btn" 
+              (click)="deleteNotification(notification, $event)" 
+              aria-label="Delete notification"
+            >
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Clear All -->
+      <div *ngIf="!isLoading && filteredNotifications.length > 0" class="clear-all">
+        <button class="clear-btn" (click)="clearAllNotifications()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container for New Notifications -->
+<div class="toast-container" aria-live="polite" aria-atomic="true">
+  <!-- Toast notifications will be dynamically inserted here -->
+</div>
