@@ -1,0 +1,198 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <h2>Admin Dashboard</h2>
+    <div class="badge admin-badge">System Administration</div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading system data...</p>
+  </div>
+
+  <div *ngIf="!loading" class="dashboard-content">
+    <!-- Quick Access Grid -->
+    <div class="quick-access-section">
+      <h3 class="section-title">Administration Tools</h3>
+      <div class="quick-access-grid">
+        <div class="quick-card" (click)="navigateToUserManagement()">
+          <div class="card-icon user-icon">👤</div>
+          <div class="card-content">
+            <h4>User Management</h4>
+            <p>Add, edit and manage system users</p>
+          </div>
+        </div>
+        
+        <div class="quick-card" (click)="navigateToAccessControl()">
+          <div class="card-icon access-icon">🔒</div>
+          <div class="card-content">
+            <h4>Access Control</h4>
+            <p>Manage roles and permissions</p>
+          </div>
+        </div>
+        
+        <div class="quick-card" (click)="navigateToDepartmentManagement()">
+          <div class="card-icon dept-icon">🏢</div>
+          <div class="card-content">
+            <h4>Departments</h4>
+            <p>Configure company departments</p>
+          </div>
+        </div>
+        
+        <div class="quick-card" (click)="navigateToSystemSettings()">
+          <div class="card-icon settings-icon">⚙️</div>
+          <div class="card-content">
+            <h4>System Settings</h4>
+            <p>Configure application settings</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon users-icon">👥</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ systemStats.totalUsers }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon depts-icon">🏢</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ systemStats.activeDepartments }}</div>
+          <div class="stat-label">Active Departments</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon roles-icon">🔑</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ systemStats.totalRoles }}</div>
+          <div class="stat-label">System Roles</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon requests-icon">📝</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ systemStats.pendingRequests }}</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panels-grid">
+      <!-- System Status Panel -->
+      <div class="panel">
+        <h3 class="panel-title">System Status</h3>
+        <div class="system-status">
+          <div class="status-item">
+            <div class="status-label">CPU Usage</div>
+            <div class="status-bar">
+              <div class="status-progress" [style.width]="systemStatus.cpu"></div>
+            </div>
+            <div class="status-value">{{ systemStatus.cpu }}</div>
+          </div>
+          
+          <div class="status-item">
+            <div class="status-label">Memory Usage</div>
+            <div class="status-bar">
+              <div class="status-progress" [style.width]="systemStatus.memory"></div>
+            </div>
+            <div class="status-value">{{ systemStatus.memory }}</div>
+          </div>
+          
+          <div class="status-item">
+            <div class="status-label">Storage</div>
+            <div class="status-bar">
+              <div class="status-progress" [style.width]="systemStatus.storage"></div>
+            </div>
+            <div class="status-value">{{ systemStatus.storage }}</div>
+          </div>
+          
+          <div class="status-details">
+            <div class="detail-item">
+              <div class="detail-label">System Status:</div>
+              <div class="detail-value">
+                <span class="status-badge">{{ systemStatus.status }}</span>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">Last Backup:</div>
+              <div class="detail-value">{{ systemStatus.lastBackup | date:'medium' }}</div>
+            </div>
+          </div>
+          
+          <div class="system-actions">
+            <button class="system-button">Run Backup</button>
+            <button class="system-button">View Logs</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Users Panel -->
+      <div class="panel">
+        <h3 class="panel-title">Recent Users</h3>
+        <div class="recent-users">
+          <div *ngFor="let user of recentUsers" class="user-item">
+            <div class="user-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+            <div class="user-role" [ngClass]="'role-' + user.role.toLowerCase()">
+              {{ user.role }}
+            </div>
+          </div>
+          
+          <div *ngIf="recentUsers.length === 0" class="empty-state">
+            <p>No users found</p>
+          </div>
+          
+          <div class="view-all-wrapper">
+            <a [routerLink]="['/admin/users']" class="view-all-link">View All Users</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Audit Log -->
+    <div class="audit-panel">
+      <h3 class="panel-title">Recent System Activity</h3>
+      <div class="audit-logs">
+        <div class="log-item">
+          <div class="log-time">10:15 AM</div>
+          <div class="log-content">
+            <span class="log-user">Admin</span> updated system settings
+          </div>
+          <div class="log-category">Settings</div>
+        </div>
+        <div class="log-item">
+          <div class="log-time">09:32 AM</div>
+          <div class="log-content">
+            <span class="log-user">Admin</span> created new user <span class="log-highlight">John Smith</span>
+          </div>
+          <div class="log-category">User Management</div>
+        </div>
+        <div class="log-item">
+          <div class="log-time">Yesterday</div>
+          <div class="log-content">
+            <span class="log-user">System</span> performed automatic database backup
+          </div>
+          <div class="log-category">Maintenance</div>
+        </div>
+        <div class="log-item">
+          <div class="log-time">Yesterday</div>
+          <div class="log-content">
+            <span class="log-user">Admin</span> modified role permissions for <span class="log-highlight">HR</span>
+          </div>
+          <div class="log-category">Access Control</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

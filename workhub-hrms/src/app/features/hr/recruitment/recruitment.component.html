@@ -1,0 +1,307 @@
+<div class="recruitment-container">
+  <div class="recruitment-header">
+    <h2>Candidate Management</h2>
+    <button class="add-button" (click)="openAddCandidateForm()">
+      <span class="add-icon">+</span>
+      Add Candidate
+    </button>
+  </div>
+
+  <!-- Search and filter controls -->
+  <div class="search-filters" [formGroup]="searchForm">
+    <div class="search-input">
+      <input 
+        type="text" 
+        formControlName="searchTerm"
+        placeholder="Search by name, email, or position"
+      >
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>Status:</label>
+        <select formControlName="statusFilter">
+          <option value="all">All Statuses</option>
+          <option value="new">New</option>
+          <option value="screening">Screening</option>
+          <option value="interview">Interview</option>
+          <option value="offer">Offer</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Department:</label>
+        <select formControlName="departmentFilter">
+          <option value="all">All Departments</option>
+          <option *ngFor="let dept of departments" [value]="dept.id">
+            {{ dept.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading candidates...</p>
+  </div>
+
+  <!-- Candidate list -->
+  <div *ngIf="!loading && !showCandidateForm" class="candidate-list">
+    <div *ngIf="filteredCandidates.length > 0" class="candidate-cards">
+      <div *ngFor="let candidate of filteredCandidates" class="candidate-card" [class.selected]="selectedCandidate?.id === candidate.id">
+        <div class="candidate-status" [ngClass]="getStatusColor(candidate.status)">
+          {{ candidate.status }}
+        </div>
+        
+        <div class="candidate-info">
+          <h3 class="candidate-name">{{ candidate.firstName }} {{ candidate.lastName }}</h3>
+          <div class="candidate-position">{{ candidate.position }}</div>
+          <div class="candidate-department">{{ getDepartmentName(candidate.departmentId) }}</div>
+          <div class="candidate-email">{{ candidate.email }}</div>
+          <div class="candidate-applied">
+            Applied: {{ candidate.dateApplied | date:'mediumDate' }}
+          </div>
+        </div>
+        
+        <div class="candidate-actions">
+          <div class="action-buttons">
+            <button class="view-button" (click)="viewCandidateDetails(candidate)" title="View Details">
+              👁️
+            </button>
+            <button class="edit-button" (click)="openEditCandidateForm(candidate)" title="Edit Candidate">
+              ✏️
+            </button>
+            <button class="delete-button" (click)="deleteCandidate(candidate)" title="Delete Candidate">
+              🗑️
+            </button>
+          </div>
+          
+          <div class="status-actions">
+            <div class="status-dropdown">
+              <button class="status-button">Change Status</button>
+              <div class="status-menu">
+                <button 
+                  *ngIf="candidate.status !== 'new'"
+                  (click)="updateCandidateStatus(candidate, 'new')"
+                  class="status-option new"
+                >New</button>
+                <button 
+                  *ngIf="candidate.status !== 'screening'"
+                  (click)="updateCandidateStatus(candidate, 'screening')"
+                  class="status-option screening"
+                >Screening</button>
+                <button 
+                  *ngIf="candidate.status !== 'interview'"
+                  (click)="updateCandidateStatus(candidate, 'interview')"
+                  class="status-option interview"
+                >Interview</button>
+                <button 
+                  *ngIf="candidate.status !== 'offer'"
+                  (click)="updateCandidateStatus(candidate, 'offer')"
+                  class="status-option offer"
+                >Offer</button>
+                <button 
+                  *ngIf="candidate.status !== 'hired'"
+                  (click)="updateCandidateStatus(candidate, 'hired')"
+                  class="status-option hired"
+                >Hired</button>
+                <button 
+                  *ngIf="candidate.status !== 'rejected'"
+                  (click)="updateCandidateStatus(candidate, 'rejected')"
+                  class="status-option rejected"
+                >Rejected</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="filteredCandidates.length === 0" class="empty-state">
+      <div class="empty-icon">👤</div>
+      <p>No candidates found</p>
+      <button class="add-button" (click)="openAddCandidateForm()">Add a Candidate</button>
+    </div>
+  </div>
+
+  <!-- Candidate form (add/edit) -->
+  <div *ngIf="showCandidateForm" class="candidate-form-container">
+    <div class="candidate-form-header">
+      <h3>{{ formMode === 'add' ? 'Add New Candidate' : 'Edit Candidate' }}</h3>
+      <button class="close-form-button" (click)="closeForm()">&times;</button>
+    </div>
+    
+    <form [formGroup]="candidateForm" (ngSubmit)="submitCandidateForm()" class="candidate-form">
+      <div class="form-columns">
+        <div class="form-column">
+          <div class="form-group">
+            <label for="firstName">First Name*</label>
+            <input id="firstName" type="text" formControlName="firstName">
+            <div *ngIf="candidateForm.get('firstName')?.invalid && candidateForm.get('firstName')?.touched" class="form-error">
+              First name is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Last Name*</label>
+            <input id="lastName" type="text" formControlName="lastName">
+            <div *ngIf="candidateForm.get('lastName')?.invalid && candidateForm.get('lastName')?.touched" class="form-error">
+              Last name is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email*</label>
+            <input id="email" type="email" formControlName="email">
+            <div *ngIf="candidateForm.get('email')?.invalid && candidateForm.get('email')?.touched" class="form-error">
+              Please enter a valid email
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" formControlName="phone">
+            <div *ngIf="candidateForm.get('phone')?.invalid && candidateForm.get('phone')?.touched" class="form-error">
+              Please enter a valid 10-digit phone number
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-column">
+          <div class="form-group">
+            <label for="position">Position*</label>
+            <input id="position" type="text" formControlName="position">
+            <div *ngIf="candidateForm.get('position')?.invalid && candidateForm.get('position')?.touched" class="form-error">
+              Position is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="departmentId">Department*</label>
+            <select id="departmentId" formControlName="departmentId">
+              <option value="">Select Department</option>
+              <option *ngFor="let dept of departments" [value]="dept.id">
+                {{ dept.name }}
+              </option>
+            </select>
+            <div *ngIf="candidateForm.get('departmentId')?.invalid && candidateForm.get('departmentId')?.touched" class="form-error">
+              Department is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="status">Status*</label>
+            <select id="status" formControlName="status">
+              <option value="new">New</option>
+              <option value="screening">Screening</option>
+              <option value="interview">Interview</option>
+              <option value="offer">Offer</option>
+              <option value="hired">Hired</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="dateApplied">Date Applied*</label>
+            <input id="dateApplied" type="date" formControlName="dateApplied">
+            <div *ngIf="candidateForm.get('dateApplied')?.invalid && candidateForm.get('dateApplied')?.touched" class="form-error">
+              Application date is required
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="resumeUrl">Resume URL</label>
+        <input id="resumeUrl" type="url" formControlName="resumeUrl" placeholder="https://example.com/resume.pdf">
+      </div>
+      
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" formControlName="notes" rows="3"></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="cancel-button" (click)="closeForm()">Cancel</button>
+        <button 
+          type="submit" 
+          class="save-button" 
+          [disabled]="candidateForm.invalid || submitting"
+        >
+          <span *ngIf="!submitting">{{ formMode === 'add' ? 'Add Candidate' : 'Save Changes' }}</span>
+          <span *ngIf="submitting">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Candidate details view -->
+  <div *ngIf="selectedCandidate && !showCandidateForm" class="candidate-details">
+    <div class="details-header">
+      <h3>Candidate Details</h3>
+      <button class="close-details-button" (click)="selectedCandidate = null">&times;</button>
+    </div>
+    
+    <div class="details-content">
+      <div class="details-section">
+        <div class="detail-row">
+          <div class="detail-label">Name:</div>
+          <div class="detail-value">{{ selectedCandidate.firstName }} {{ selectedCandidate.lastName }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Position:</div>
+          <div class="detail-value">{{ selectedCandidate.position }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Department:</div>
+          <div class="detail-value">{{ getDepartmentName(selectedCandidate.departmentId) }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Email:</div>
+          <div class="detail-value">{{ selectedCandidate.email }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Phone:</div>
+          <div class="detail-value">{{ selectedCandidate.phone || 'Not provided' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Status:</div>
+          <div class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusColor(selectedCandidate.status)">
+              {{ selectedCandidate.status }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Applied on:</div>
+          <div class="detail-value">{{ selectedCandidate.dateApplied | date:'longDate' }}</div>
+        </div>
+        
+        <div class="detail-row" *ngIf="selectedCandidate.resumeUrl">
+          <div class="detail-label">Resume:</div>
+          <div class="detail-value">
+            <a [href]="selectedCandidate.resumeUrl" target="_blank" class="resume-link">
+              View Resume
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="details-section" *ngIf="selectedCandidate.notes">
+        <h4 class="section-title">Notes</h4>
+        <div class="notes-content">{{ selectedCandidate.notes }}</div>
+      </div>
+      
+      <div class="details-actions">
+        <button class="edit-button" (click)="openEditCandidateForm(selectedCandidate)">Edit</button>
+        <button class="delete-button" (click)="deleteCandidate(selectedCandidate)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

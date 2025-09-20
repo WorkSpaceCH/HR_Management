@@ -1,0 +1,168 @@
+<div class="manager-dashboard">
+  <div class="dashboard-header">
+    <h2>Manager Dashboard</h2>
+    <div *ngIf="activeDepartment$ | async as dept" class="department-context">
+      <span>Department: <strong>{{ dept.name }}</strong></span>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Dashboard content -->
+  <div *ngIf="!loading" class="dashboard-content">
+    <!-- Welcome section with current user info -->
+    <div class="welcome-section" *ngIf="currentUser$ | async as user">
+      <h3>Welcome, {{ user.firstName }}!</h3>
+      <p>Here's an overview of your team's status and pending actions</p>
+    </div>
+
+    <!-- Team metrics -->
+    <div class="metrics-cards">
+      <div class="metric-card">
+        <div class="metric-icon team-icon">👥</div>
+        <div class="metric-content">
+          <div class="metric-title">Team Size</div>
+          <div class="metric-value">{{ teamMetrics.totalTeamMembers }}</div>
+          <div class="metric-subtitle">Total team members</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon active-icon">✓</div>
+        <div class="metric-content">
+          <div class="metric-title">Active</div>
+          <div class="metric-value">{{ teamMetrics.activeMembers }}</div>
+          <div class="metric-subtitle">Currently working</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon leave-icon">🏖️</div>
+        <div class="metric-content">
+          <div class="metric-title">On Leave</div>
+          <div class="metric-value">{{ teamMetrics.onLeaveMembers }}</div>
+          <div class="metric-subtitle">Currently on leave</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon new-icon">🆕</div>
+        <div class="metric-content">
+          <div class="metric-title">New Hires</div>
+          <div class="metric-value">{{ teamMetrics.newHires }}</div>
+          <div class="metric-subtitle">In past 3 months</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon reviews-icon">📋</div>
+        <div class="metric-content">
+          <div class="metric-title">Pending Reviews</div>
+          <div class="metric-value">{{ teamMetrics.pendingReviews }}</div>
+          <div class="metric-subtitle">Performance reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Quick actions -->
+      <div class="dashboard-card actions-card">
+        <h3 class="card-title">Quick Actions</h3>
+        <div class="quick-actions">
+          <a [routerLink]="['/manager/team']" class="action-button">
+            <span class="action-icon">👥</span>
+            <span class="action-label">Manage Team</span>
+          </a>
+          <a [routerLink]="['/manager/leaves']" class="action-button">
+            <span class="action-icon">📅</span>
+            <span class="action-label">Review Leave Requests</span>
+          </a>
+          <a [routerLink]="['/manager/team']" class="action-button">
+            <span class="action-icon">📊</span>
+            <span class="action-label">Performance Reviews</span>
+          </a>
+          <a href="#" class="action-button">
+            <span class="action-icon">📝</span>
+            <span class="action-label">Create Report</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Pending leave requests -->
+      <div class="dashboard-card leave-requests-card">
+        <div class="card-header">
+          <h3 class="card-title">Pending Leave Requests</h3>
+          <a [routerLink]="['/manager/leaves']" class="view-all-link">View All</a>
+        </div>
+
+        <div class="leave-requests-list" *ngIf="recentLeaveRequests.length > 0">
+          <div *ngFor="let request of recentLeaveRequests" class="leave-request-item">
+            <div class="request-details">
+              <div class="employee-name">{{ request.employeeName }}</div>
+              <div class="leave-dates">
+                {{ request.startDate | date:'MMM d' }} - {{ request.endDate | date:'MMM d, y' }}
+              </div>
+              <div class="leave-type">{{ request.type }}</div>
+            </div>
+            <div class="request-actions">
+              <button class="approve-btn">Approve</button>
+              <button class="reject-btn">Reject</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="recentLeaveRequests.length === 0" class="empty-state">
+          <div class="empty-icon">📅</div>
+          <p>No pending leave requests</p>
+        </div>
+      </div>
+
+      <!-- Team schedule -->
+      <div class="dashboard-card team-schedule-card">
+        <div class="card-header">
+          <h3 class="card-title">Team Schedule</h3>
+          <div class="schedule-date">
+            {{ currentDate | date:'EEEE, MMMM d, y' }}
+          </div>
+        </div>
+
+        <div class="schedule-content" *ngIf="teamMembers.length > 0">
+          <div class="schedule-status">
+            <div class="status-group">
+              <div class="status-label">Present:</div>
+              <div class="status-count">{{ teamMetrics.activeMembers }}</div>
+            </div>
+            <div class="status-group">
+              <div class="status-label">Absent:</div>
+              <div class="status-count">{{ teamMetrics.onLeaveMembers }}</div>
+            </div>
+          </div>
+
+          <div class="team-presence-list">
+            <div *ngFor="let member of teamMembers" class="team-member-item">
+              <div class="member-avatar">
+                {{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}
+              </div>
+              <div class="member-details">
+                <div class="member-name">{{ member.firstName }} {{ member.lastName }}</div>
+                <div class="member-position">{{ member.position }}</div>
+              </div>
+              <div class="member-status" [ngClass]="'status-' + member.status">
+                {{ member.status }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="teamMembers.length === 0" class="empty-state">
+          <div class="empty-icon">👥</div>
+          <p>No team members found</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<div class="role-demo-container">
+  <h2>Role-Based UI Components Demo</h2>
+  <p class="description">This component demonstrates various ways to implement role-based UI restrictions</p>
+
+  <!-- Current User Info -->
+  <div class="current-user-info">
+    <h3>Current User:</h3>
+    <div *ngIf="authService.currentUser$ | async as user; else notLoggedIn">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Role:</strong> <span class="role-badge">{{ user.role }}</span></p>
+    </div>
+    <ng-template #notLoggedIn>
+      <p>Not logged in</p>
+    </ng-template>
+  </div>
+
+  <div class="demo-sections">
+    <!-- Example 1: NgIf with Role Directive -->
+    <div class="demo-section">
+      <h3>Method 1: *appHasRole Directive</h3>
+      <p>Hide/show components based on user role</p>
+      
+      <div class="action-buttons">
+        <!-- Admin-only button -->
+        <button *appHasRole="[Role.ADMIN]" class="action-button admin-button" (click)="performAdminAction()">
+          Admin Action
+        </button>
+        
+        <!-- HR can see this -->
+        <button *appHasRole="[Role.HR, Role.ADMIN]" class="action-button hr-button" (click)="performHRAction()">
+          HR Action
+        </button>
+        
+        <!-- Managers and above can see this -->
+        <button *appHasRole="[Role.MANAGER, Role.HR, Role.ADMIN]" class="action-button manager-button" (click)="performManagerAction()">
+          Manager Action
+        </button>
+        
+        <!-- All authenticated users can see this -->
+        <button *appHasRole="[Role.EMPLOYEE, Role.MANAGER, Role.HR, Role.ADMIN]" 
+                class="action-button employee-button" (click)="performEmployeeAction()">
+          Employee Action
+        </button>
+      </div>
+    </div>
+
+    <!-- Example 2: NgIf with Service Method -->
+    <div class="demo-section">
+      <h3>Method 2: Direct Service Method</h3>
+      <p>Using authService.hasRole() directly in template</p>
+      
+      <div class="action-buttons">
+        <!-- Admin-only button -->
+        <button *ngIf="authService.hasRole(Role.ADMIN)" 
+                class="action-button admin-button" (click)="performAdminAction()">
+          Admin Action
+        </button>
+        
+        <!-- HR can see this -->
+        <button *ngIf="authService.hasRole([Role.HR, Role.ADMIN])" 
+                class="action-button hr-button" (click)="performHRAction()">
+          HR Action
+        </button>
+        
+        <!-- Managers and above can see this -->
+        <button *ngIf="authService.hasRole([Role.MANAGER, Role.HR, Role.ADMIN])" 
+                class="action-button manager-button" (click)="performManagerAction()">
+          Manager Action
+        </button>
+        
+        <!-- All authenticated users can see this -->
+        <button *ngIf="authService.isLoggedIn" 
+                class="action-button employee-button" (click)="performEmployeeAction()">
+          Employee Action
+        </button>
+      </div>
+    </div>
+
+    <!-- Example 3: Disable Instead of Hide -->
+    <div class="demo-section">
+      <h3>Method 3: Disabled Buttons</h3>
+      <p>Show but disable actions based on roles</p>
+      
+      <div class="action-buttons">
+        <!-- Admin-only button -->
+        <button [disabled]="!authService.hasRole(Role.ADMIN)" 
+                class="action-button admin-button" (click)="performAdminAction()">
+          Admin Action
+        </button>
+        
+        <!-- HR can use this -->
+        <button [disabled]="!authService.hasRole([Role.HR, Role.ADMIN])" 
+                class="action-button hr-button" (click)="performHRAction()">
+          HR Action
+        </button>
+        
+        <!-- Managers and above can use this -->
+        <button [disabled]="!authService.hasRole([Role.MANAGER, Role.HR, Role.ADMIN])" 
+                class="action-button manager-button" (click)="performManagerAction()">
+          Manager Action
+        </button>
+        
+        <!-- All authenticated users can use this -->
+        <button [disabled]="!authService.isLoggedIn" 
+                class="action-button employee-button" (click)="performEmployeeAction()">
+          Employee Action
+        </button>
+      </div>
+    </div>
+
+    <!-- Example 4: NgIf with Else Template -->
+    <div class="demo-section">
+      <h3>Method 4: Alternative UI Elements</h3>
+      <p>Show different UI elements based on roles</p>
+      
+      <div class="action-alternatives">
+        <!-- Admin view -->
+        <div *appHasRole="[Role.ADMIN]; else hrView" class="role-view admin-view">
+          <h4>Admin View</h4>
+          <p>You have full system access with all privileges.</p>
+          <button class="action-button admin-button">Access All Settings</button>
+        </div>
+        
+        <!-- HR view -->
+        <ng-template #hrView>
+          <div *appHasRole="[Role.HR]; else managerView" class="role-view hr-view">
+            <h4>HR View</h4>
+            <p>You have access to personnel records and HR functions.</p>
+            <button class="action-button hr-button">Manage HR Functions</button>
+          </div>
+        </ng-template>
+        
+        <!-- Manager view -->
+        <ng-template #managerView>
+          <div *appHasRole="[Role.MANAGER]; else employeeView" class="role-view manager-view">
+            <h4>Manager View</h4>
+            <p>You can manage your team and approve requests.</p>
+            <button class="action-button manager-button">View Team Dashboard</button>
+          </div>
+        </ng-template>
+        
+        <!-- Employee view -->
+        <ng-template #employeeView>
+          <div *appHasRole="[Role.EMPLOYEE]; else guestView" class="role-view employee-view">
+            <h4>Employee View</h4>
+            <p>You can manage your profile and submit requests.</p>
+            <button class="action-button employee-button">View My Dashboard</button>
+          </div>
+        </ng-template>
+        
+        <!-- Guest view (not logged in) -->
+        <ng-template #guestView>
+          <div class="role-view guest-view">
+            <h4>Guest View</h4>
+            <p>Please log in to access the system.</p>
+            <button class="action-button">Log In</button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

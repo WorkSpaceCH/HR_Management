@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../shared/shared.module';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
@@ -16,6 +17,7 @@ import { AccessControlComponent } from './access-control/access-control.componen
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     AdminRoutingModule,
     SharedModule
   ]

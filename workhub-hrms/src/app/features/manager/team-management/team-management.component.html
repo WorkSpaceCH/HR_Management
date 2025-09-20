@@ -1,0 +1,227 @@
+<div class="team-management-container">
+  <div class="team-header">
+    <h2>Team Management</h2>
+    <div *ngIf="activeDepartment" class="department-context">
+      <span>Department: <strong>{{ activeDepartment.name }}</strong></span>
+    </div>
+  </div>
+
+  <!-- Search and filter controls -->
+  <div class="search-controls" [formGroup]="searchForm">
+    <div class="search-input">
+      <input 
+        type="text" 
+        placeholder="Search by name, email, or position" 
+        formControlName="searchTerm"
+      >
+      <span class="search-icon">🔍</span>
+    </div>
+    
+    <div class="filter-select">
+      <label>Status:</label>
+      <select formControlName="filterBy">
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="on_leave">On Leave</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading team members...</p>
+  </div>
+
+  <!-- Team list -->
+  <div *ngIf="!loading" class="team-list">
+    <table *ngIf="filteredMembers.length > 0" class="team-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Position</th>
+          <th>Department</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of filteredMembers">
+          <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+          <td>{{ employee.position }}</td>
+          <td>{{ getDepartmentName(employee.departmentId) | async }}</td>
+          <td>{{ employee.email }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + employee.status">
+              {{ employee.status }}
+            </span>
+          </td>
+          <td class="action-buttons">
+            <button class="view-button" (click)="viewEmployeeDetails(employee)" title="View Details">
+              👁️
+            </button>
+            <button class="review-button" (click)="openPerformanceReview(employee)" title="Performance Review">
+              📋
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    <div *ngIf="filteredMembers.length === 0" class="empty-state">
+      <div class="empty-icon">👥</div>
+      <p>No team members found</p>
+      <p *ngIf="searchForm.get('searchTerm')?.value || searchForm.get('filterBy')?.value !== 'all'">
+        Try adjusting your search or filter criteria.
+      </p>
+    </div>
+  </div>
+
+  <!-- Employee details modal -->
+  <div *ngIf="selectedEmployee && !isPerformanceModalOpen" class="modal-backdrop" (click)="closeEmployeeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Employee Details</h3>
+        <button class="close-button" (click)="closeEmployeeDetails()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="employee-details">
+          <div class="employee-avatar">
+            <div class="avatar-placeholder">
+              {{ selectedEmployee.firstName.charAt(0) }}{{ selectedEmployee.lastName.charAt(0) }}
+            </div>
+          </div>
+
+          <div class="details-content">
+            <div class="detail-row">
+              <div class="detail-label">Name:</div>
+              <div class="detail-value">{{ selectedEmployee.firstName }} {{ selectedEmployee.lastName }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Position:</div>
+              <div class="detail-value">{{ selectedEmployee.position }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Department:</div>
+              <div class="detail-value">{{ getDepartmentName(selectedEmployee.departmentId) | async }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Email:</div>
+              <div class="detail-value">{{ selectedEmployee.email }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Status:</div>
+              <div class="detail-value">
+                <span class="status-badge" [ngClass]="'status-' + selectedEmployee.status">
+                  {{ selectedEmployee.status }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Hire Date:</div>
+              <div class="detail-value">{{ selectedEmployee.hireDate | date: 'mediumDate' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="review-button" (click)="openPerformanceReview(selectedEmployee)">
+          Start Performance Review
+        </button>
+        <button class="close-button-text" (click)="closeEmployeeDetails()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance review modal -->
+  <div *ngIf="isPerformanceModalOpen && selectedEmployee" class="modal-backdrop">
+    <div class="modal-content performance-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Performance Review: {{ selectedEmployee.firstName }} {{ selectedEmployee.lastName }}</h3>
+        <button class="close-button" (click)="closePerformanceModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Success message -->
+        <div *ngIf="submitSuccess" class="success-message">
+          <span class="success-icon">✓</span>
+          Performance review submitted successfully!
+        </div>
+
+        <form [formGroup]="performanceForm" (ngSubmit)="submitPerformanceReview()" class="performance-form">
+          <div class="form-group">
+            <label for="rating">Performance Rating (1-5)*</label>
+            <div class="rating-input">
+              <input 
+                type="range" 
+                id="rating" 
+                formControlName="rating" 
+                min="1" 
+                max="5" 
+                step="1"
+                class="range-input"
+              >
+              <div class="rating-value">{{ performanceForm.get('rating')?.value || 0 }}/5</div>
+            </div>
+            <div *ngIf="performanceForm.get('rating')?.invalid && performanceForm.get('rating')?.touched" class="error-text">
+              Please provide a rating between 1 and 5
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reviewPeriod">Review Period*</label>
+            <input type="text" id="reviewPeriod" formControlName="reviewPeriod" placeholder="e.g., Q1 2025">
+            <div *ngIf="performanceForm.get('reviewPeriod')?.invalid && performanceForm.get('reviewPeriod')?.touched" class="error-text">
+              Review period is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="strengths">Strengths & Accomplishments*</label>
+            <textarea id="strengths" formControlName="strengths" rows="3" placeholder="What did the employee do well?"></textarea>
+            <div *ngIf="performanceForm.get('strengths')?.invalid && performanceForm.get('strengths')?.touched" class="error-text">
+              This field is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="improvements">Areas for Improvement*</label>
+            <textarea id="improvements" formControlName="improvements" rows="3" placeholder="What could be improved?"></textarea>
+            <div *ngIf="performanceForm.get('improvements')?.invalid && performanceForm.get('improvements')?.touched" class="error-text">
+              This field is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="goals">Goals for Next Period*</label>
+            <textarea id="goals" formControlName="goals" rows="3" placeholder="What should the employee focus on next?"></textarea>
+            <div *ngIf="performanceForm.get('goals')?.invalid && performanceForm.get('goals')?.touched" class="error-text">
+              This field is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="comments">Additional Comments</label>
+            <textarea id="comments" formControlName="comments" rows="3" placeholder="Any other feedback..."></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="submit-button" 
+          [disabled]="performanceForm.invalid || loading || submitSuccess"
+          (click)="submitPerformanceReview()">
+          <span *ngIf="!loading && !submitSuccess">Submit Review</span>
+          <span *ngIf="loading">Submitting...</span>
+          <span *ngIf="submitSuccess">Submitted!</span>
+        </button>
+        <button type="button" class="cancel-button" (click)="closePerformanceModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

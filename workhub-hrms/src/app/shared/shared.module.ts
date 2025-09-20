@@ -10,6 +10,7 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { DepartmentSelectorComponent } from './components/department-selector/department-selector.component';
+import { RoleDemoComponent } from './components/role-demo/role-demo.component';
 
 // Directives
 import { HasRoleDirective } from './directives/has-role.directive';
@@ -23,7 +24,8 @@ const components = [
   LoadingSpinnerComponent,
   ConfirmDialogComponent,
   UnauthorizedComponent,
-  DepartmentSelectorComponent
+  DepartmentSelectorComponent,
+  RoleDemoComponent
 ];
 
 const directives = [

@@ -1,0 +1,225 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h2>Employee Profile</h2>
+    <div class="header-actions">
+      <button *ngIf="!isEditing" class="edit-button" (click)="toggleEditMode()">Edit Profile</button>
+      <div *ngIf="isEditing" class="edit-actions">
+        <button class="cancel-button" (click)="toggleEditMode()">Cancel</button>
+        <button class="save-button" [disabled]="profileForm.invalid || loading" (click)="onSubmit()">
+          <span *ngIf="!loading">Save Changes</span>
+          <span *ngIf="loading">Saving...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading && !employeeData" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading profile information...</p>
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="saveSuccess" class="success-message">
+    <span class="success-icon">✓</span>
+    Profile updated successfully!
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="saveError" class="error-message">
+    <span class="error-icon">⚠</span>
+    {{ saveError }}
+  </div>
+
+  <!-- Profile content -->
+  <div *ngIf="employeeData && !loading" class="profile-content">
+    <div class="profile-info">
+      <div class="employee-avatar">
+        <!-- Placeholder avatar with initials -->
+        <div class="avatar-placeholder">
+          {{ employeeData.firstName.charAt(0) }}{{ employeeData.lastName.charAt(0) }}
+        </div>
+      </div>
+
+      <div class="employee-info">
+        <div class="employee-name">{{ employeeData.firstName }} {{ employeeData.lastName }}</div>
+        <div class="employee-position">{{ employeeData.position }}</div>
+        <div class="employee-id">Employee ID: {{ employeeData.id }}</div>
+      </div>
+    </div>
+
+    <!-- View mode -->
+    <div *ngIf="!isEditing" class="profile-details view-mode">
+      <div class="detail-section">
+        <h3>Personal Information</h3>
+        <div class="detail-row">
+          <div class="detail-label">Email:</div>
+          <div class="detail-value">{{ employeeData.email }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Phone:</div>
+          <div class="detail-value">{{ profileForm.get('phone')?.value || 'Not provided' }}</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Address</h3>
+        <div class="detail-row" *ngIf="profileForm.get('address.street')?.value">
+          <div class="detail-value address-value">
+            {{ profileForm.get('address.street')?.value }}<br>
+            {{ profileForm.get('address.city')?.value }}, {{ profileForm.get('address.state')?.value }} {{ profileForm.get('address.zipCode')?.value }}<br>
+            {{ profileForm.get('address.country')?.value }}
+          </div>
+        </div>
+        <div class="detail-row" *ngIf="!profileForm.get('address.street')?.value">
+          <div class="detail-value">No address provided</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Emergency Contact</h3>
+        <div class="detail-row" *ngIf="profileForm.get('emergencyContact.name')?.value">
+          <div class="detail-label">Name:</div>
+          <div class="detail-value">{{ profileForm.get('emergencyContact.name')?.value }}</div>
+        </div>
+        <div class="detail-row" *ngIf="profileForm.get('emergencyContact.relationship')?.value">
+          <div class="detail-label">Relationship:</div>
+          <div class="detail-value">{{ profileForm.get('emergencyContact.relationship')?.value }}</div>
+        </div>
+        <div class="detail-row" *ngIf="profileForm.get('emergencyContact.phone')?.value">
+          <div class="detail-label">Phone:</div>
+          <div class="detail-value">{{ profileForm.get('emergencyContact.phone')?.value }}</div>
+        </div>
+        <div class="detail-row" *ngIf="!profileForm.get('emergencyContact.name')?.value">
+          <div class="detail-value">No emergency contact provided</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Skills</h3>
+        <div class="detail-row">
+          <div class="detail-value">{{ profileForm.get('skills')?.value || 'No skills listed' }}</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Bio</h3>
+        <div class="detail-row">
+          <div class="detail-value">{{ profileForm.get('bio')?.value || 'No bio provided' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit mode -->
+    <form *ngIf="isEditing" [formGroup]="profileForm" class="profile-details edit-mode">
+      <div class="detail-section">
+        <h3>Personal Information</h3>
+        <div class="form-group">
+          <label for="firstName">First Name*</label>
+          <input type="text" id="firstName" formControlName="firstName">
+          <div *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched" class="error-text">
+            First name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name*</label>
+          <input type="text" id="lastName" formControlName="lastName">
+          <div *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched" class="error-text">
+            Last name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email*</label>
+          <input type="email" id="email" formControlName="email">
+          <div *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched" class="error-text">
+            Please provide a valid email address
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" formControlName="phone">
+          <div *ngIf="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched" class="error-text">
+            Please provide a valid 10-digit phone number
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section" formGroupName="address">
+        <h3>Address</h3>
+        <div class="form-group">
+          <label for="street">Street</label>
+          <input type="text" id="street" formControlName="street">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" formControlName="city">
+          </div>
+          
+          <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" id="state" formControlName="state">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="zipCode">Zip Code</label>
+            <input type="text" id="zipCode" formControlName="zipCode">
+          </div>
+          
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" id="country" formControlName="country">
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section" formGroupName="emergencyContact">
+        <h3>Emergency Contact</h3>
+        <div class="form-group">
+          <label for="contactName">Name</label>
+          <input type="text" id="contactName" formControlName="name">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="relationship">Relationship</label>
+            <input type="text" id="relationship" formControlName="relationship">
+          </div>
+          
+          <div class="form-group">
+            <label for="contactPhone">Phone</label>
+            <input type="tel" id="contactPhone" formControlName="phone">
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Skills</h3>
+        <div class="form-group">
+          <label for="skills">List your professional skills</label>
+          <textarea id="skills" formControlName="skills" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Bio</h3>
+        <div class="form-group">
+          <label for="bio">Tell us about yourself</label>
+          <textarea id="bio" formControlName="bio" rows="5"></textarea>
+          <div *ngIf="profileForm.get('bio')?.invalid" class="error-text">
+            Bio must be less than 500 characters
+          </div>
+          <div class="char-count">
+            {{ profileForm.get('bio')?.value?.length || 0 }}/500
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

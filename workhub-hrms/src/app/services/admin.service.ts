@@ -1,22 +1,33 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { User } from '../core/services/auth.service';
+import { Role, User } from '../core/models/user.model';
+import { MOCK_USERS } from '../core/data/mock-users';
 
 export interface SystemSettings {
-  id: string;
-  name: string;
-  value: string;
-  category: string;
-  description?: string;
-  isEditable: boolean;
+  companyName: string;
+  emailDomain: string;
+  defaultLanguage: string;
+  dateFormat: string;
+  timeZone: string;
+  maintenanceMode: boolean;
+  sessionTimeout: number; // in minutes
+  maxLoginAttempts: number;
+  passwordPolicy: {
+    minLength: number;
+    requireUppercase: boolean;
+    requireNumbers: boolean;
+    requireSpecialChars: boolean;
+    expiryDays: number;
+  };
 }
 
-export interface Role {
+export interface RoleDefinition {
   id: number;
   name: string;
   description: string;
-  permissions: Permission[];
+  permissions: string[];
 }
 
 export interface Permission {
@@ -24,81 +35,240 @@ export interface Permission {
   name: string;
   description: string;
   module: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
+  action: 'read' | 'create' | 'update' | 'delete' | 'approve';
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
+  private basePath = 'admin';
+  private mockUsers: User[] = [...MOCK_USERS];
+  
   constructor(private apiService: ApiService) {}
 
-  // User management
+  // User Management endpoints
   getUsers(): Observable<User[]> {
-    return this.apiService.get<User[]>('admin/users');
+    // For development, return mock data
+    return of(this.mockUsers).pipe(delay(500));
+    
+    // For production, use the API service
+    // return this.apiService.get<User[]>(`${this.basePath}/users`);
   }
 
   getUser(id: number): Observable<User> {
-    return this.apiService.get<User>(`admin/users/${id}`);
+    // For development, use mock data
+    return of(this.mockUsers.find(u => u.id === id)!).pipe(delay(300));
+    
+    // For production, use the API service
+    // return this.apiService.get<User>(`${this.basePath}/users/${id}`);
   }
 
-  createUser(user: Omit<User, 'id' | 'token'>): Observable<User> {
-    return this.apiService.post<User, Omit<User, 'id' | 'token'>>('admin/users', user);
+  createUser(user: Omit<User, 'id'>): Observable<User> {
+    // For development, create a user with a generated ID
+    const newUser = {
+      ...user,
+      id: this.mockUsers.length > 0 ? 
+          Math.max(...this.mockUsers.map(u => u.id)) + 1 : 1
+    } as User;
+    
+    this.mockUsers.push(newUser);
+    return of(newUser).pipe(delay(800));
+    
+    // For production, use the API service
+    // return this.apiService.post<User, Omit<User, 'id'>>(`${this.basePath}/users`, user);
   }
 
-  updateUser(id: number, updates: Partial<User>): Observable<User> {
-    return this.apiService.patch<User, Partial<User>>(`admin/users/${id}`, updates);
+  updateUser(id: number, user: Partial<User>): Observable<User> {
+    // For development, update an existing user
+    const index = this.mockUsers.findIndex(u => u.id === id);
+    if (index !== -1) {
+      this.mockUsers[index] = { ...this.mockUsers[index], ...user };
+      return of(this.mockUsers[index]).pipe(delay(800));
+    }
+    return of(null!).pipe(
+      delay(300),
+      map(() => { throw new Error('User not found'); })
+    );
+    
+    // For production, use the API service
+    // return this.apiService.patch<User, Partial<User>>(`${this.basePath}/users/${id}`, user);
   }
 
   deleteUser(id: number): Observable<void> {
-    return this.apiService.delete<void>(`admin/users/${id}`);
+    // For development, remove a user from the mock array
+    const initialLength = this.mockUsers.length;
+    this.mockUsers = this.mockUsers.filter(u => u.id !== id);
+    
+    if (this.mockUsers.length === initialLength) {
+      return of(null!).pipe(
+        delay(300),
+        map(() => { throw new Error('User not found'); })
+      );
+    }
+    
+    return of(undefined).pipe(delay(800));
+    
+    // For production, use the API service
+    // return this.apiService.delete<void>(`${this.basePath}/users/${id}`);
   }
 
   // System settings
-  getSystemSettings(category?: string): Observable<SystemSettings[]> {
-    const params = category ? { category } : {};
-    return this.apiService.get<SystemSettings[]>('admin/settings', { params });
+  private mockSystemSettings: SystemSettings = {
+    companyName: 'WorkHub HRMS',
+    emailDomain: 'workhub.com',
+    defaultLanguage: 'en-US',
+    dateFormat: 'MM/dd/yyyy',
+    timeZone: 'UTC',
+    maintenanceMode: false,
+    sessionTimeout: 30,
+    maxLoginAttempts: 5,
+    passwordPolicy: {
+      minLength: 8,
+      requireUppercase: true,
+      requireNumbers: true,
+      requireSpecialChars: false,
+      expiryDays: 90
+    }
+  };
+  
+  getSystemSettings(): Observable<SystemSettings> {
+    // For development, return mock data
+    return of(this.mockSystemSettings).pipe(delay(500));
+    
+    // For production, use the API service
+    // return this.apiService.get<SystemSettings>(`${this.basePath}/settings`);
   }
 
-  updateSystemSetting(id: string, value: string): Observable<SystemSettings> {
-    return this.apiService.patch<SystemSettings, { value: string }>(`admin/settings/${id}`, { value });
+  updateSystemSettings(settings: Partial<SystemSettings>): Observable<SystemSettings> {
+    // For development, update mock settings
+    this.mockSystemSettings = {
+      ...this.mockSystemSettings,
+      ...settings
+    };
+    return of(this.mockSystemSettings).pipe(delay(800));
+    
+    // For production, use the API service
+    // return this.apiService.patch<SystemSettings, Partial<SystemSettings>>(`${this.basePath}/settings`, settings);
   }
 
-  // Access control
-  getRoles(): Observable<Role[]> {
-    return this.apiService.get<Role[]>('admin/roles');
+  // Role Management endpoints
+  private mockRoles: RoleDefinition[] = [
+    {
+      id: 1,
+      name: 'Admin',
+      description: 'Full system access',
+      permissions: ['all']
+    },
+    {
+      id: 2,
+      name: 'HR Manager',
+      description: 'Access to HR functions and reports',
+      permissions: ['users:read', 'users:create', 'hr:full', 'reports:read']
+    },
+    {
+      id: 3,
+      name: 'Manager',
+      description: 'Team management capabilities',
+      permissions: ['team:full', 'leaves:approve', 'reports:team']
+    },
+    {
+      id: 4,
+      name: 'Employee',
+      description: 'Basic employee access',
+      permissions: ['profile:read', 'profile:update', 'leaves:request']
+    }
+  ];
+  
+  getRoles(): Observable<RoleDefinition[]> {
+    return of(this.mockRoles).pipe(delay(500));
   }
 
-  getRole(id: number): Observable<Role> {
-    return this.apiService.get<Role>(`admin/roles/${id}`);
+  getRole(id: number): Observable<RoleDefinition> {
+    return of(this.mockRoles.find(r => r.id === id)!).pipe(delay(300));
   }
 
-  createRole(role: Omit<Role, 'id'>): Observable<Role> {
-    return this.apiService.post<Role, Omit<Role, 'id'>>('admin/roles', role);
+  createRole(role: Omit<RoleDefinition, 'id'>): Observable<RoleDefinition> {
+    const newRole = {
+      ...role,
+      id: this.mockRoles.length > 0 ? 
+          Math.max(...this.mockRoles.map(r => r.id)) + 1 : 1
+    } as RoleDefinition;
+    
+    this.mockRoles.push(newRole);
+    return of(newRole).pipe(delay(800));
   }
 
-  updateRole(id: number, updates: Partial<Role>): Observable<Role> {
-    return this.apiService.patch<Role, Partial<Role>>(`admin/roles/${id}`, updates);
+  updateRole(id: number, role: Partial<RoleDefinition>): Observable<RoleDefinition> {
+    const index = this.mockRoles.findIndex(r => r.id === id);
+    if (index !== -1) {
+      this.mockRoles[index] = { ...this.mockRoles[index], ...role };
+      return of(this.mockRoles[index]).pipe(delay(800));
+    }
+    return of(null!).pipe(map(() => { throw new Error('Role not found'); }));
   }
 
   deleteRole(id: number): Observable<void> {
-    return this.apiService.delete<void>(`admin/roles/${id}`);
+    const initialLength = this.mockRoles.length;
+    this.mockRoles = this.mockRoles.filter(r => r.id !== id);
+    
+    if (this.mockRoles.length === initialLength) {
+      return of(null!).pipe(map(() => { throw new Error('Role not found'); }));
+    }
+    
+    return of(undefined).pipe(delay(800));
   }
 
-  // Permissions
+  // Permission Management endpoints
+  private mockPermissions: Permission[] = [
+    { id: 1, name: 'users:read', description: 'View users', module: 'Users', action: 'read' },
+    { id: 2, name: 'users:create', description: 'Create users', module: 'Users', action: 'create' },
+    { id: 3, name: 'users:update', description: 'Update users', module: 'Users', action: 'update' },
+    { id: 4, name: 'users:delete', description: 'Delete users', module: 'Users', action: 'delete' },
+    { id: 5, name: 'hr:full', description: 'Full HR access', module: 'HR', action: 'read' },
+    { id: 6, name: 'team:full', description: 'Full team management', module: 'Team', action: 'read' },
+    { id: 7, name: 'leaves:request', description: 'Request leaves', module: 'Leaves', action: 'create' },
+    { id: 8, name: 'leaves:approve', description: 'Approve leaves', module: 'Leaves', action: 'approve' },
+    { id: 9, name: 'reports:read', description: 'View reports', module: 'Reports', action: 'read' },
+    { id: 10, name: 'reports:team', description: 'View team reports', module: 'Reports', action: 'read' }
+  ];
+  
   getPermissions(): Observable<Permission[]> {
-    return this.apiService.get<Permission[]>('admin/permissions');
+    return of(this.mockPermissions).pipe(delay(500));
   }
 
-  // System information
+  // System Information endpoints
   getSystemInfo(): Observable<any> {
-    return this.apiService.get<any>('admin/system-info');
+    return of({
+      version: '1.0.0',
+      serverTime: new Date(),
+      uptime: '3 days, 5 hours',
+      lastBackup: '2025-09-19 02:00:00',
+      dbSize: '256 MB',
+      activeUsers: 15,
+      environment: 'Development',
+      nodeVersion: 'v16.14.2',
+      memoryUsage: '42%',
+      cpuUsage: '28%',
+      operatingSystem: 'Linux'
+    }).pipe(delay(500));
   }
 
   // Logs
   getSystemLogs(limit: number = 100, level?: string): Observable<any[]> {
-    const params = { limit: limit.toString() };
-    if (level) params['level'] = level;
-    return this.apiService.get<any[]>('admin/logs', { params });
+    // For development, return mock data
+    return of([
+      { timestamp: '2025-09-19T08:15:22Z', level: 'info', message: 'User admin logged in', source: 'auth.service' },
+      { timestamp: '2025-09-19T08:14:55Z', level: 'info', message: 'Application started', source: 'app.service' },
+      { timestamp: '2025-09-19T07:45:12Z', level: 'warn', message: 'Failed login attempt for user john', source: 'auth.service' },
+      { timestamp: '2025-09-19T07:30:05Z', level: 'error', message: 'Database connection timeout', source: 'db.service' },
+      { timestamp: '2025-09-19T07:15:33Z', level: 'info', message: 'Backup completed successfully', source: 'backup.service' }
+    ].filter(log => !level || log.level === level).slice(0, limit))
+      .pipe(delay(500));
+    
+    // For production, use the API service with HttpParams
+    // const options = { params: new HttpParams().set('limit', limit.toString()) };
+    // if (level) options.params = options.params.set('level', level);
+    // return this.apiService.get<any[]>('admin/logs', options);
   }
 }

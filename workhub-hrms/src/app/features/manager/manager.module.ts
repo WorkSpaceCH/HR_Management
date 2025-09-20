@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../shared/shared.module';
 import { ManagerRoutingModule } from './manager-routing.module';
 import { ManagerDashboardComponent } from './manager-dashboard/manager-dashboard.component';
@@ -14,6 +15,7 @@ import { LeaveApprovalComponent } from './leave-approval/leave-approval.componen
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     ManagerRoutingModule,
     SharedModule
   ]

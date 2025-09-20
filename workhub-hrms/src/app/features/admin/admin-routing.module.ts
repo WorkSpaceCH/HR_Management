@@ -5,31 +5,38 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { SystemSettingsComponent } from './system-settings/system-settings.component';
 import { AccessControlComponent } from './access-control/access-control.component';
 import { AuthGuard } from '../../core/guards/auth.guard';
+import { Role } from '../../core/models/user.model';
 
 const routes: Routes = [
   {
     path: '',
     component: AdminDashboardComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] }
+    data: { roles: [Role.ADMIN] }
   },
   {
     path: 'users',
     component: UserManagementComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] }
+    data: { roles: [Role.ADMIN] }
   },
   {
     path: 'settings',
     component: SystemSettingsComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] }
+    data: { roles: [Role.ADMIN] }
   },
   {
     path: 'access-control',
     component: AccessControlComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] }
+    data: { roles: [Role.ADMIN] as Role[] }
+  },
+  {
+    path: 'departments',
+    component: SystemSettingsComponent, 
+    canActivate: [AuthGuard],
+    data: { roles: [Role.ADMIN] as Role[] }
   }
 ];
 

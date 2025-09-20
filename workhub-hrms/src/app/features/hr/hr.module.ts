@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../shared/shared.module';
 import { HrRoutingModule } from './hr-routing.module';
 import { HrDashboardComponent } from './hr-dashboard/hr-dashboard.component';
@@ -16,6 +17,7 @@ import { PolicyManagementComponent } from './policy-management/policy-management
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     HrRoutingModule,
     SharedModule
   ]
